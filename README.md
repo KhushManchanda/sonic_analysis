@@ -31,7 +31,7 @@ AudioMuse-AI builds a hybrid recommender that combines:
 | Signal | Source | Responsible |
 |--------|--------|-------------|
 | **Ratings** (collaborative filtering) | HetRec 2011 Last.fm 2K | Person 1 ✅ |
-| **Semantic tags** (Last.fm community labels) | Last.fm API + HetRec local cache | Person 2 |
+| **Semantic tags** (Last.fm community labels) | Last.fm API + HetRec local cache | Person 2 ✅|
 | **Audio features** (local sonic analysis) | MusicNet WAV + Librosa | Person 3 |
 | **Models + Evaluation** | scikit-learn, LightFM | Person 4 |
 
