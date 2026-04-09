@@ -1,4 +1,4 @@
-# 🎵 AudioMuse-AI — Music Recommendation System
+# 🎵 Sonic Analysis — Music Recommendation System
 
 > **CSE 575 — Statistical Machine Learning | Spring 2026**
 > Improving music recommendation accuracy by combining collaborative filtering with audio-derived features and Last.fm semantic tags.
