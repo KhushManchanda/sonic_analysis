@@ -88,6 +88,46 @@ if master is not None:
     check("master_tracks no null rating",   master["rating"].isna().sum() == 0)
     PASSES.append(f"[OK]   master_tracks.csv   — {len(master)} rows")
 
+# ── tag_features.csv ──────────────────────────────────────────────────────────
+tag_features = load("tag_features.csv")
+if tag_features is not None:
+    check("tag_features has track_id", "track_id" in tag_features.columns)
+    check("tag_features has tags_raw", "tags_raw" in tag_features.columns)
+    check(
+        "tag_features non-empty",
+        len(tag_features) > 0,
+        "file contains zero rows",
+    )
+    if "track_id" in tag_features.columns:
+        check(
+            "tag_features no null track_id",
+            tag_features["track_id"].isna().sum() == 0,
+            f"{tag_features['track_id'].isna().sum()} nulls",
+        )
+        check(
+            "tag_features unique track_id",
+            tag_features["track_id"].duplicated().sum() == 0,
+            f"{tag_features['track_id'].duplicated().sum()} duplicates",
+        )
+    tfidf_cols = [c for c in tag_features.columns if c.startswith("tfidf_")]
+    check(
+        "tag_features has tfidf columns",
+        len(tfidf_cols) > 0,
+        "expected at least one tfidf_* column",
+    )
+    numeric_ok = all(pd.api.types.is_numeric_dtype(tag_features[c]) for c in tfidf_cols)
+    check("tag_features tfidf columns numeric", numeric_ok)
+    if meta is not None and "track_id" in tag_features.columns:
+        missing_from_meta = set(tag_features["track_id"]) - set(meta["track_id"])
+        check(
+            "tag_features track_id joinable to metadata",
+            len(missing_from_meta) == 0,
+            f"{len(missing_from_meta)} track_id values missing from track_metadata",
+        )
+    PASSES.append(
+        f"[OK]   tag_features.csv    — {len(tag_features)} rows | {len(tfidf_cols)} tfidf columns"
+    )
+
 # ── Report ────────────────────────────────────────────────────────────────────
 print()
 print("=" * 56)

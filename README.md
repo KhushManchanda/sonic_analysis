@@ -53,11 +53,10 @@ We run **ablations** comparing:
 
 | Person | Name | Role | Status |
 |--------|------|------|--------|
-| **Person 1** | Wazir Khan | Data + pipeline owner | ✅ **Complete** |
-| **Person 2** | Khush Manchanda | Last.fm tag pipeline | 🔲 In progress |
-| **Person 3** | Arjun Ranjan | Audio feature extraction | 🔲 In progress |
-| **Person 4** | Shashank Valayaputtur | Modeling + evaluation | 🔲 In progress |
-| **Person 5** | Deeparghya Dutta Barua | Report + presentation | 🔲 In progress |
+| **Person 1** | Khush Manchanda | Data + pipeline owner | ✅ **Complete** |
+| **Person 2** | Arjun Ranjan | Last.fm tag pipeline | 🔲 In progress |
+| **Person 3** | Diggy | Audio feature extraction | 🔲 In progress |
+| **Person 4** | Ninjaman | Modeling + evaluation | 🔲 In progress |
 
 ---
 
@@ -163,6 +162,7 @@ sonic_analysis/
 │       ├── 03_join_ratings.py
 │       ├── 04_split.py
 │       ├── 05_export_master.py
+│       ├── 06_build_tag_features.py
 │       ├── validate_outputs.py
 │       └── run_pipeline.sh
 │
@@ -257,8 +257,10 @@ catalog     = pd.read_csv("data/processed/track_metadata.csv")
 2. Merge `tags.dat` to get tag names
 3. Normalize tag text (lowercase, strip, deduplicate)
 4. Build TF-IDF matrix over tag vocabulary
-5. Use the Last.fm API (`track.getTopTags`) **only** for artists whose tag counts are 0 in the local cache
+5. Use the Last.fm API **only** for artists whose tag counts are 0 in the local cache
 6. Save to `data/processed/tag_features.csv`
+
+**Implementation note:** HetRec is artist-centered and Person 1 defines `track_id = artist_id`, so this repo's compatible fallback is artist top tags keyed by `track_id`, with cached API responses stored under `data/raw/lastfm_cache/`.
 
 **Required output schema:**
 ```

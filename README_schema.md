@@ -6,7 +6,7 @@
 
 ## Primary Join Key
 
-**`track_id`** — integer, MusicNet numeric ID.
+**`track_id`** — integer, HetRec `artist_id`.
 
 _Every_ file produced by Persons 1, 2, and 3 must include `track_id` as a column.
 Person 4 reads all files and joins on `track_id`.
@@ -19,7 +19,7 @@ All processed files live in `data/processed/`. Do **not** save outputs elsewhere
 
 | File | Owner | Description |
 |------|-------|-------------|
-| `track_metadata.csv` | Person 1 | Clean MusicNet track/artist catalog |
+| `track_metadata.csv` | Person 1 | Clean HetRec artist catalog |
 | `ratings_joined.csv` | Person 1 | (user_id, track_id, rating) full set |
 | `ratings_train.csv` | Person 1 | 80% train split |
 | `ratings_test.csv` | Person 1 | 20% test split |
@@ -34,19 +34,16 @@ All processed files live in `data/processed/`. Do **not** save outputs elsewhere
 ### `track_metadata.csv`
 | Column | Type | Notes |
 |--------|------|-------|
-| `track_id` | int | MusicNet ID — primary key |
-| `artist` | str | Normalized composer name (e.g. `"johann sebastian bach"`) |
-| `track` | str | Normalized composition name |
-| `performer` | str | Performer/soloist name |
-| `ensemble` | str | Orchestra/ensemble name |
-| `source` | str | Recording source |
-| `license` | str | License type |
+| `track_id` | int | HetRec `artist_id` — primary key |
+| `artist` | str | Normalized artist name |
+| `url` | str | Last.fm artist URL |
+| `musicnet_id` | int/nullable | Linked MusicNet ID if audio overlap exists |
 
 ### `ratings_train.csv` / `ratings_test.csv`
 | Column | Type | Notes |
 |--------|------|-------|
 | `user_id` | int | HetRec user ID |
-| `track_id` | int | MusicNet track ID |
+| `track_id` | int | HetRec `artist_id` |
 | `artist` | str | Artist name (for human readability) |
 | `rating` | float | 1.0–5.0 (log-normalized from play counts) |
 
@@ -56,7 +53,7 @@ All columns from `ratings_joined.csv` + all columns from `track_metadata.csv`.
 ### `tag_features.csv` **(Person 2: follow this exactly)**
 | Column | Type | Notes |
 |--------|------|-------|
-| `track_id` | int | **Must match MusicNet track_id** |
+| `track_id` | int | **Must match HetRec `artist_id` / Person 1 track_id** |
 | `tags_raw` | str | Comma-separated raw tag string |
 | `tfidf_*` OR `tag_vec` | float | TF-IDF columns or serialized vector |
 
@@ -65,7 +62,7 @@ All columns from `ratings_joined.csv` + all columns from `track_metadata.csv`.
 ### `audio_features.csv` **(Person 3: follow this exactly)**
 | Column | Type | Notes |
 |--------|------|-------|
-| `track_id` | int | **Must match MusicNet track_id** |
+| `track_id` | int | **Must match HetRec `artist_id` / Person 1 track_id** |
 | `tempo` | float | BPM from Librosa |
 | `rms_mean` | float | RMS energy mean |
 | `mfcc_1_mean` ... `mfcc_20_mean` | float | MFCC coefficient means |
@@ -102,6 +99,9 @@ python3 data/scripts/04_split.py
 
 # 5. Export master table
 python3 data/scripts/05_export_master.py
+
+# 6. Build tag features
+python3 data/scripts/06_build_tag_features.py
 
 # Or run all at once:
 bash data/scripts/run_pipeline.sh
