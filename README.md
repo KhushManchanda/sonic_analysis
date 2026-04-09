@@ -54,7 +54,7 @@ We run **ablations** comparing:
 | Person | Name | Role | Status |
 |--------|------|------|--------|
 | **Person 1** | Khush Manchanda | Data + pipeline owner | ✅ **Complete** |
-| **Person 2** | Arjun Ranjan | Last.fm tag pipeline | 🔲 In progress |
+| **Person 2** | Arjun Ranjan | Last.fm tag pipeline | ✅ **Complete** |
 | **Person 3** | Diggy | Audio feature extraction | 🔲 In progress |
 | **Person 4** | Ninjaman | Modeling + evaluation | 🔲 In progress |
 
