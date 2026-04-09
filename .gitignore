@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.env
+.venv
+env/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Raw data (too large / re-downloadable via 01_download.sh) ─────────────────
+data/raw/
+
+# ── Keep processed outputs tracked (small enough for git) ────────────────────
+# data/processed/ is intentionally NOT gitignored
+# BUT ignore any large feature dumps if they get big
+data/processed/audio_features_*.npy
+data/processed/embeddings_*.pkl
+
+# Logs / temp
+*.log
+tmp/
