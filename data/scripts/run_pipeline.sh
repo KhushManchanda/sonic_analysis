@@ -33,6 +33,10 @@ echo ">>> Step 5/5: Export master table"
 python3 data/scripts/05_export_master.py
 
 echo ""
+echo ">>> Step 6/6: Build tag features"
+python3 data/scripts/06_build_tag_features.py
+
+echo ""
 echo ">>> Validating outputs ..."
 python3 data/scripts/validate_outputs.py
 
