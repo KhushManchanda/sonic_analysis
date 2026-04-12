@@ -32,7 +32,7 @@ AudioMuse-AI builds a hybrid recommender that combines:
 |--------|--------|-------------|
 | **Ratings** (collaborative filtering) | HetRec 2011 Last.fm 2K | Person 1 ✅ |
 | **Semantic tags** (Last.fm community labels) | Last.fm API + HetRec local cache | Person 2 ✅|
-| **Audio features** (local sonic analysis) | MusicNet WAV + Librosa | Person 3 |
+| **Audio features** (local sonic analysis) | MusicNet WAV + Librosa | Person 3 ✅ |
 | **Models + Evaluation** | scikit-learn, LightFM | Person 4 |
 
 ---
@@ -55,7 +55,7 @@ We run **ablations** comparing:
 |--------|------|------|--------|
 | **Person 1** | Khush Manchanda | Data + pipeline owner | ✅ **Complete** |
 | **Person 2** | Arjun Ranjan | Last.fm tag pipeline | ✅ **Complete** |
-| **Person 3** | Diggy | Audio feature extraction | 🔲 In progress |
+| **Person 3** | Diggy | Audio feature extraction | ✅ **Complete** |
 | **Person 4** | Ninjaman | Modeling + evaluation | 🔲 In progress |
 
 ---
@@ -71,10 +71,10 @@ We run **ablations** comparing:
                 ▼                         ▼
 ┌──────────────────────┐    ┌─────────────────────────────┐
 │   Person 1 Pipeline  │    │   Person 3: Audio Features  │
-│  track_metadata.csv  │    │   audio_features.csv        │
-│  ratings_train.csv   │    │   (MFCC, tempo, chroma...)  │
-│  ratings_test.csv    │    └─────────────┬───────────────┘
-│  master_tracks.csv   │                  │
+│  track_metadata.csv  │    │   audio_features_train.csv  │
+│  ratings_train.csv   │    │   audio_features_test.csv   │
+│  ratings_test.csv    │    │   (MFCC, tempo, chroma...)  │
+│  master_tracks.csv   │    └─────────────┬───────────────┘
 └──────┬───────────────┘    ┌─────────────▼───────────────┐
        │                    │   Person 2: Tag Features    │
        │                    │   tag_features.csv          │
@@ -139,6 +139,9 @@ sonic_analysis/
 ├── data/
 │   ├── raw/                         ← gitignored — run 01_download.sh to generate
 │   │   ├── musicnet_metadata.csv
+│   │   ├── musicnet/                ← extracted from musicnet.tar.gz (~11 GB)
+│   │   │   ├── train_data/          ← WAV files used for audio_features_train.csv
+│   │   │   └── test_data/           ← WAV files used for audio_features_test.csv
 │   │   └── hetrec2011-lastfm-2k/
 │   │       ├── artists.dat
 │   │       ├── user_artists.dat
@@ -154,15 +157,17 @@ sonic_analysis/
 │   │   ├── master_tracks.csv        ✅ Person 1 — flat team table
 │   │   ├── musicnet_audio_map.csv   ✅ Person 1 — WAV file mapping for audio
 │   │   ├── tag_features.csv         🔲 Person 2 — TODO
-│   │   └── audio_features.csv       🔲 Person 3 — TODO
+│   │   ├── audio_features_train.csv ✅ Person 3 — Librosa features, train split
+│   │   └── audio_features_test.csv  ✅ Person 3 — Librosa features, test split
 │   │
-│   └── scripts/                     ← Person 1's reproducible pipeline
-│       ├── 01_download.sh
+│   └── scripts/                     ← reproducible pipeline
+│       ├── 01_download.sh           ← also downloads + extracts musicnet.tar.gz
 │       ├── 02_clean_metadata.py
 │       ├── 03_join_ratings.py
 │       ├── 04_split.py
 │       ├── 05_export_master.py
 │       ├── 06_build_tag_features.py
+│       ├── 07_embed_tracks.py       ← Person 3: audio feature extraction
 │       ├── validate_outputs.py
 │       └── run_pipeline.sh
 │
@@ -191,8 +196,14 @@ cd sonic_analysis
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Run the data pipeline (Person 1's work — already done but reproducible)
+# Run the data pipeline
 bash data/scripts/run_pipeline.sh
+```
+
+The pipeline will download MusicNet (~11 GB) on first run. Subsequent runs skip files that are already present. Audio extraction supports parallel workers:
+
+```bash
+bash data/scripts/run_pipeline.sh --workers 12
 ```
 
 After running, `data/processed/` will contain all output files.
@@ -234,6 +245,51 @@ Person 1 has delivered the full shared data foundation:
 
 ---
 
+### ✅ Person 3 — Audio Feature Extraction
+
+**Status: Complete as of April 12, 2026**
+
+**Goal:** Produce Librosa-extracted audio features keyed by `musicnet_id`, split into train and test to match the MusicNet directory structure.
+
+**How it works:**
+
+`07_embed_tracks.py` reads directly from `data/raw/musicnet_metadata.csv`, detects which track IDs exist in `train_data/` vs `test_data/`, and writes one output CSV per split. Extraction is incremental — if the script is interrupted it resumes from where it left off on the next run.
+
+```bash
+# Basic run
+python3 data/scripts/07_embed_tracks.py
+
+# With parallelism (recommended — supports up to --workers 16 on most machines)
+python3 data/scripts/07_embed_tracks.py --workers 12
+```
+
+**Output schema:**
+
+```
+musicnet_id       (str)   — MusicNet track ID; join to musicnet_audio_map.csv to get track_id
+tempo             (float) — BPM
+rms_mean          (float) — RMS energy mean
+mfcc_1_mean  ...  mfcc_20_mean  (float) — MFCC coefficient means
+mfcc_1_std   ...  mfcc_20_std   (float) — MFCC coefficient stds
+chroma_1_mean ... chroma_12_mean (float) — per-bin chroma means
+contrast_1_mean ... contrast_7_mean (float) — per-band spectral contrast means
+```
+
+Total: 61 feature columns + `musicnet_id`. To join with the rest of the team's data:
+
+```python
+import pandas as pd
+
+audio   = pd.read_csv("data/embeds/audio_features_train.csv")
+mapping = pd.read_csv("data/processed/musicnet_audio_map.csv")
+
+# mapping has: track_id (HetRec artist_id), musicnet_id
+audio = audio.merge(mapping, on="musicnet_id", how="left")
+# audio now has track_id and can join with ratings, tags, etc.
+```
+
+---
+
 ### 🔲 Person 2 — Last.fm Tag Pipeline
 
 **Goal:** Produce `data/processed/tag_features.csv` — one row per artist with tag-based features.
@@ -271,64 +327,6 @@ tfidf_*   (float) — one column per tag in vocabulary (sparse is fine)
 
 ---
 
-### 🔲 Person 3 — Audio Feature Extraction
-
-**Goal:** Produce `data/processed/audio_features.csv` — one row per artist with Librosa-extracted features.
-
-**Start with the MusicNet overlap:**
-
-```python
-import pandas as pd
-
-# Person 1 already mapped which track_ids have audio
-audio_map = pd.read_csv("data/processed/musicnet_audio_map.csv")
-# Columns: track_id, musicnet_id
-# WAV files are at: data/raw/musicnet/{musicnet_id}.wav (after downloading musicnet.tar.gz)
-```
-
-**Step-by-step:**
-1. Download `musicnet.tar.gz` from https://zenodo.org/records/5120004 (11 GB — start early)
-2. For each WAV file in `musicnet_audio_map.csv`, extract with Librosa:
-   - **MFCC** (20 coefficients): mean + std → 40 features
-   - **Tempo** (BPM): 1 feature
-   - **RMS Energy**: mean → 1 feature
-   - **Chroma**: mean → 12 features
-   - **Spectral contrast**: mean → 7 features
-3. Key each row by `track_id` (from the audio map)
-4. Save to `data/processed/audio_features.csv`
-
-**Starter code:**
-```python
-import librosa
-import numpy as np
-
-def extract_features(wav_path: str) -> dict:
-    y, sr = librosa.load(wav_path, sr=22050, mono=True, duration=60)  # first 60s
-    mfcc        = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
-    chroma      = librosa.feature.chroma_stft(y=y, sr=sr)
-    contrast    = librosa.feature.spectral_contrast(y=y, sr=sr)
-    rms         = librosa.feature.rms(y=y)
-    tempo, _    = librosa.beat.beat_track(y=y, sr=sr)
-    feats = {"tempo": float(tempo), "rms_mean": float(rms.mean())}
-    for i, (m, s) in enumerate(zip(mfcc.mean(axis=1), mfcc.std(axis=1))):
-        feats[f"mfcc_{i+1}_mean"] = m; feats[f"mfcc_{i+1}_std"] = s
-    feats["chroma_mean"]   = float(chroma.mean())
-    feats["contrast_mean"] = float(contrast.mean())
-    return feats
-```
-
-**Required output schema:**
-```
-track_id         (int)   — must match master_tracks.csv
-tempo            (float)
-rms_mean         (float)
-mfcc_1_mean ... mfcc_20_mean  (float)
-chroma_mean      (float)
-contrast_mean    (float)
-```
-
----
-
 ### 🔲 Person 4 — Modeling & Evaluation
 
 **Goal:** Train baselines → matrix factorization → hybrid model. Produce an evaluation table.
@@ -360,11 +358,19 @@ from surprise.model_selection import cross_validate
 from lightfm import LightFM
 ```
 
-**Step 4 — Hybrid (once tag_features.csv and audio_features.csv exist):**
+**Step 4 — Hybrid (audio features are ready; waiting on tag_features.csv from Person 2):**
 ```python
-tags  = pd.read_csv("data/processed/tag_features.csv")
-audio = pd.read_csv("data/processed/audio_features.csv")
-# Join on track_id, build item feature matrix, pass to LightFM
+import pandas as pd
+
+audio_train = pd.read_csv("data/embeds/audio_features_train.csv")
+audio_test  = pd.read_csv("data/embeds/audio_features_test.csv")
+mapping     = pd.read_csv("data/processed/musicnet_audio_map.csv")
+
+# Join musicnet_id -> track_id, then join with ratings on track_id
+audio_train = audio_train.merge(mapping, on="musicnet_id", how="left")
+
+tags  = pd.read_csv("data/processed/tag_features.csv")   # when Person 2 is done
+# Build item feature matrix, pass to LightFM
 ```
 
 **Step 5 — Evaluation metrics:**
@@ -438,7 +444,8 @@ mae  = mean_absolute_error(y_true, y_pred)
 If time runs short, the project is successful if it delivers:
 
 - [x] Ratings-only baseline (global/user/item mean)
-- [ ] One hybrid enhancement (+ tags OR + audio)
+- [x] Audio feature pipeline (+ audio)
+- [ ] One additional hybrid enhancement (+ tags)
 - [ ] One evaluation table (RMSE + MAE at minimum)
 - [ ] One demo: example top-10 recommendations for a sample user
 
@@ -457,8 +464,9 @@ See [`README_schema.md`](README_schema.md) for the complete column-level specifi
 | `ratings_test.csv` | HetRec `artistID` | Person 1 ✅ |
 | `master_tracks.csv` | HetRec `artistID` | Person 1 ✅ |
 | `tag_features.csv` | HetRec `artistID` | Person 2 🔲 |
-| `audio_features.csv` | HetRec `artistID` | Person 3 🔲 |
+| `audio_features_train.csv` | MusicNet `musicnet_id` (join via `musicnet_audio_map.csv`) | Person 3 ✅ |
+| `audio_features_test.csv` | MusicNet `musicnet_id` (join via `musicnet_audio_map.csv`) | Person 3 ✅ |
 
 ---
 
-*Last updated: April 9, 2026 by Person 1*
+*Last updated: April 12, 2026 by Person 3 (Diggy)*
