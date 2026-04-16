@@ -1,0 +1,51 @@
+user_id,rank,track_id,artist,predicted_rating
+2,1,14631,lorraine,5.0
+2,2,10622,welle:erdball,5.0
+2,3,13558,the lightning seeds,5.0
+2,4,17792,the beatmasters,5.0
+2,5,17793,tin tin out,5.0
+2,6,17796,data 80,5.0
+2,7,5255,the go-go's,5.0
+2,8,17799,s'express,5.0
+2,9,17794,betty boo,5.0
+2,10,17800,family fantastic,5.0
+1376,1,6373,tyler adam,3.452
+1376,2,18121,rytmus,3.441
+1376,3,6553,darkbuster,3.436
+1376,4,15927,marcelo adnet,3.265
+1376,5,6696,mara maravilha,3.249
+1376,6,15347,shannon noll,3.229
+1376,7,3612,bell x1,3.202
+1376,8,18122,kontrafakt,3.182
+1376,9,9665,flotation toy warning,3.167
+1376,10,6198,kettcar,3.154
+1388,1,8366,holdcut,3.571
+1388,2,6373,tyler adam,3.486
+1388,3,18121,rytmus,3.47
+1388,4,8367,emf,3.468
+1388,5,15927,marcelo adnet,3.333
+1388,6,10871,d-bo,3.314
+1388,7,9665,flotation toy warning,3.31
+1388,8,14986,dicky dixon,3.303
+1388,9,5255,the go-go's,3.287
+1388,10,5464,joe brooks,3.262
+1387,1,6373,tyler adam,4.007
+1387,2,18121,rytmus,4.005
+1387,3,14986,dicky dixon,3.811
+1387,4,14987,richard dixon-composer,3.789
+1387,5,18122,kontrafakt,3.746
+1387,6,15075,80kidz,3.722
+1387,7,8366,holdcut,3.719
+1387,8,4625,tribraco,3.717
+1387,9,2479,twiztid,3.665
+1387,10,11379,donguralesko,3.659
+1386,1,6373,tyler adam,4.027
+1386,2,18121,rytmus,3.956
+1386,3,14986,dicky dixon,3.824
+1386,4,14987,richard dixon-composer,3.798
+1386,5,15075,80kidz,3.753
+1386,6,9665,flotation toy warning,3.719
+1386,7,8366,holdcut,3.703
+1386,8,18122,kontrafakt,3.697
+1386,9,2479,twiztid,3.693
+1386,10,4625,tribraco,3.693

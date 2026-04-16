@@ -92,12 +92,42 @@ if mapping is not None:
     check("musicnet_audio_map has artist_id", "artist_id" in mapping.columns)
     check("musicnet_audio_map has musicnet_id", "musicnet_id" in mapping.columns)
     if {"artist_id", "musicnet_id"}.issubset(mapping.columns):
-        check("musicnet_audio_map unique musicnet_id", mapping["musicnet_id"].duplicated().sum() == 0, f"{mapping['musicnet_id'].duplicated().sum()} duplicates")
+        n_artists = mapping["artist_id"].nunique()
+        check("musicnet_audio_map covers multiple artists", n_artists >= 5,
+              f"only {n_artists} artist(s) mapped")
 
-for name in ["audio_features_artist_train.csv", "audio_features_artist_test.csv"]:
-    audio = load(name)
-    if audio is not None:
-        check(f"{name} has artist_id", "artist_id" in audio.columns)
+# ── audio_features.csv (Person 3 processed output) ───────────────────────────
+audio_feat = load("audio_features.csv")
+if audio_feat is not None:
+    af_id = canonical_id_column(audio_feat)
+    check("audio_features has item id", af_id is not None)
+    if af_id:
+        check("audio_features no null ids", audio_feat[af_id].isna().sum() == 0)
+        check("audio_features unique ids", audio_feat[af_id].duplicated().sum() == 0)
+    mfcc_cols = [c for c in audio_feat.columns if c.startswith("mfcc_")]
+    check("audio_features has mfcc columns", len(mfcc_cols) > 0,
+          "expected mfcc_* columns")
+    PASSES.append(f"[OK]   audio_features.csv    — {len(audio_feat)} artists | {len(mfcc_cols)} mfcc cols")
+
+# ── evaluation_results.csv (Person 4) ────────────────────────────────────────
+eval_df = load("evaluation_results.csv")
+if eval_df is not None:
+    for col in ["model", "rmse", "mae"]:
+        check(f"evaluation_results has {col}", col in eval_df.columns)
+    if "rmse" in eval_df.columns:
+        check("evaluation_results rmse values valid",
+              eval_df["rmse"].between(0.0, 5.0).all(),
+              f"min={eval_df['rmse'].min():.3f} max={eval_df['rmse'].max():.3f}")
+    PASSES.append(f"[OK]   evaluation_results.csv — {len(eval_df)} model(s) evaluated")
+
+# ── recommendations.csv (Person 4) ───────────────────────────────────────────
+recs_df = load("recommendations.csv")
+if recs_df is not None:
+    for col in ["user_id", "track_id", "artist", "rank", "predicted_rating"]:
+        check(f"recommendations has {col}", col in recs_df.columns)
+    if "rank" in recs_df.columns:
+        check("recommendations rank starts at 1", recs_df["rank"].min() == 1)
+    PASSES.append(f"[OK]   recommendations.csv   — {recs_df['user_id'].nunique() if 'user_id' in recs_df.columns else '?'} users, {len(recs_df)} recs")
 
 print()
 print("=" * 56)

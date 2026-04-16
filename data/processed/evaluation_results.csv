@@ -1,0 +1,8 @@
+model,rmse,mae,precision_at_10,ndcg_at_10
+Global Mean,0.4851,0.3679,0.0,0.0
+User Mean,0.2588,0.1954,0.0,0.0
+Item Mean,0.5043,0.3831,0.0,0.0
+MF (ratings only),0.3711,0.2749,0.0,0.0
+MF + tags,0.4474,0.3377,0.0013,0.0037
+MF + audio,0.4441,0.3356,0.0013,0.0037
+MF + tags + audio,0.4472,0.3378,0.0013,0.0037

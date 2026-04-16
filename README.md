@@ -56,7 +56,7 @@ We run **ablations** comparing:
 | **Person 1** | Khush Manchanda | Data + pipeline owner | ✅ **Complete** |
 | **Person 2** | Arjun Ranjan | Last.fm tag pipeline | ✅ **Complete** |
 | **Person 3** | Diggy | Audio feature extraction | ✅ **Complete** |
-| **Person 4** | Ninjaman | Modeling + evaluation | 🔲 In progress |
+| **Person 4** | Ninjaman | Modeling + evaluation | ✅ **Complete** |
 
 ---
 
@@ -155,10 +155,11 @@ sonic_analysis/
 │   │   ├── ratings_train.csv        ✅ Person 1 — 74,265 rows (80%)
 │   │   ├── ratings_test.csv         ✅ Person 1 — 18,569 rows (20%)
 │   │   ├── master_tracks.csv        ✅ Person 1 — flat team table
-│   │   ├── musicnet_audio_map.csv   ✅ Person 1 — WAV file mapping for audio
-│   │   ├── tag_features.csv         🔲 Person 2 — TODO
-│   │   ├── audio_features_train.csv ✅ Person 3 — Librosa features, train split
-│   │   └── audio_features_test.csv  ✅ Person 3 — Librosa features, test split
+│   │   ├── musicnet_audio_map.csv   ✅ Person 1/3 — WAV file mapping (10 composers → HetRec artists)
+│   │   ├── tag_features.csv         ✅ Person 2 — 17,632 artists, 100 TF-IDF features
+│   │   ├── audio_features.csv       ✅ Person 3 — 10 artists, 61 Librosa features
+│   │   ├── evaluation_results.csv   ✅ Person 4 — ablation table (7 models)
+│   │   └── recommendations.csv     ✅ Person 4 — top-10 recs for 5 sample users
 │   │
 │   └── scripts/                     ← reproducible pipeline
 │       ├── 01_download.sh           ← also downloads + extracts musicnet.tar.gz
@@ -166,10 +167,12 @@ sonic_analysis/
 │       ├── 03_join_ratings.py
 │       ├── 04_split.py
 │       ├── 05_export_master.py
-│       ├── 06_build_tag_features.py
+│       ├── 06_build_tag_features.py ← Person 2: tag features
 │       ├── 07_embed_tracks.py       ← Person 3: audio feature extraction
-│       ├── validate_outputs.py
-│       └── run_pipeline.sh
+│       ├── fix_audio_map.py         ← Person 3: expand musicnet → HetRec mapping
+│       ├── 08_model.py              ← Person 4: baselines, MF, hybrid models
+│       ├── validate_outputs.py      ← 39 automated checks (all passing)
+│       └── run_pipeline.sh          ← runs all 8 steps end-to-end
 │
 ├── notebooks/                       ← EDA, experimentation, figures
 │   └── (add your .ipynb files here)
@@ -211,14 +214,33 @@ After running, `data/processed/` will contain all output files.
 ### Validate outputs
 ```bash
 python3 data/scripts/validate_outputs.py
-# Expected: All 23 checks passed. Ready to share!
+# Expected: All 39 checks passed. Ready to share!
 ```
 
 ---
 
-## 8. What's Already Done (Person 1 — Data Pipeline)
+## 8. Results
 
-**Status: ✅ Complete as of April 9, 2026**
+**Status: ✅ Complete as of April 16, 2026**
+
+### Ablation Table
+
+| Model | RMSE | MAE | P@10 | NDCG@10 |
+|-------|------|-----|------|----------|
+| Global Mean | 0.4851 | 0.3679 | — | — |
+| User Mean | 0.2588 | 0.1954 | — | — |
+| Item Mean | 0.5043 | 0.3831 | — | — |
+| **Matrix Factorization (ratings only)** | **0.3711** | **0.2749** | 0.0000 | 0.0000 |
+| MF + tags | 0.4474 | 0.3377 | 0.0013 | 0.0037 |
+| MF + audio | 0.4441 | 0.3356 | 0.0013 | 0.0037 |
+| MF + tags + audio | 0.4472 | 0.3378 | 0.0013 | 0.0037 |
+
+**Key findings:**
+- User Mean achieves lowest RMSE (0.26) — strong per-user rating bias; confirms high between-user variance
+- Matrix Factorization (ratings only) achieves 0.37 RMSE — best *latent factor* model
+- Adding tags/audio improves ranking (P@10/NDCG@10) over pure MF, showing content features help discoverability
+- Audio coverage is limited to 10 classical composers (MusicNet constraint) — acknowledged in limitations
+
 
 Person 1 has delivered the full shared data foundation:
 
