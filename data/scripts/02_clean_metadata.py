@@ -1,134 +1,145 @@
 #!/usr/bin/env python3
 """
-02_clean_metadata.py  —  Person 1: Build item catalog from HetRec 2011
-=======================================================================
-PRIMARY catalog: HetRec 2011 artists.dat (17,632 artists → 92,834 interactions)
-  track_id = artist_id from HetRec (stable integer join key for everyone)
+02_clean_metadata.py  —  Build the artist catalog and validated MusicNet overlap map
+===============================================================================
 
-SECONDARY enrichment: musicnet_metadata.csv
-  Maps the ~10 classical composers that overlap to MusicNet WAV files
-  so Person 3 can extract audio features for that subset.
+Canonical item definition:
+    HetRec items are artists, not tracks.
+    artist_id = HetRec artist_id.
 
-Reads:
-    data/raw/hetrec2011-lastfm-2k/artists.dat
-    data/raw/musicnet_metadata.csv             (optional enrichment)
-Writes:
-    data/processed/track_metadata.csv          (17,632 rows)
-    data/processed/musicnet_audio_map.csv      (track_id ↔ musicnet_id mapping)
-
-Output columns (track_metadata.csv):
-    track_id    int   — HetRec artist_id (primary join key for everyone)
-    artist      str   — normalized artist name
-    url         str   — Last.fm URL
-    musicnet_id int   — MusicNet ID if audio is available, else NaN
+Files retained for backward compatibility:
+    - track_metadata.csv (contains artist-level rows)
+    - musicnet_audio_map.csv
 """
 
-import sys
+from __future__ import annotations
+
 import pathlib
 import re
+import sys
 
 import numpy as np
 import pandas as pd
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
-ROOT       = pathlib.Path(__file__).resolve().parents[2]
-RAW        = ROOT / "data" / "raw"
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+RAW = ROOT / "data" / "raw"
 HETREC_DIR = RAW / "hetrec2011-lastfm-2k"
-OUT        = ROOT / "data" / "processed"
+OUT = ROOT / "data" / "processed"
 OUT.mkdir(parents=True, exist_ok=True)
 
-ARTISTS_PATH    = HETREC_DIR / "artists.dat"
-MUSICNET_PATH   = RAW / "musicnet_metadata.csv"
-OUTPUT_PATH     = OUT / "track_metadata.csv"
-AUDIO_MAP_PATH  = OUT / "musicnet_audio_map.csv"
+ARTISTS_PATH = HETREC_DIR / "artists.dat"
+MUSICNET_PATH = RAW / "musicnet_metadata.csv"
+OUTPUT_PATH = OUT / "track_metadata.csv"
+AUDIO_MAP_PATH = OUT / "musicnet_audio_map.csv"
+
+MANUAL_COMPOSER_ALIASES: dict[str, list[str]] = {
+    "johann sebastian bach": ["j s bach", "js bach", "bach"],
+    "ludwig van beethoven": ["beethoven"],
+    "franz schubert": ["schubert"],
+    "frederic chopin": ["chopin"],
+    "wolfgang amadeus mozart": ["mozart"],
+    "joseph haydn": ["haydn"],
+    "claude debussy": ["debussy"],
+    "antonin dvorak": ["dvorak"],
+    "felix mendelssohn": ["mendelssohn"],
+    "robert schumann": ["schumann"],
+    "sergei rachmaninoff": ["rachmaninoff", "rachmaninov"],
+}
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-def normalize_text(s: pd.Series) -> pd.Series:
-    return (
-        s.astype(str)
-         .str.strip()
-         .str.replace(r"\s+", " ", regex=True)
-         .str.replace(r"[^\x20-\x7E]", "", regex=True)
-         .str.lower()
-    )
+def normalize_text(value: str) -> str:
+    text = str(value).strip().lower()
+    text = re.sub(r"\s+", " ", text)
+    text = re.sub(r"[^\x20-\x7E]", "", text)
+    return text
 
 
 def normalize_composer(name: str) -> str:
-    """'Bach, Johann Sebastian' → 'johann sebastian bach'"""
-    name = name.strip().lower()
+    name = normalize_text(name)
     if "," in name:
-        parts = [p.strip() for p in name.split(",", 1)]
-        return f"{parts[1]} {parts[0]}"
+        last, first = [part.strip() for part in name.split(",", 1)]
+        return normalize_text(f"{first} {last}")
     return name
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+def candidate_match_keys(composer_norm: str) -> list[tuple[str, str]]:
+    keys = [(composer_norm, "exact")]
+    for alias in MANUAL_COMPOSER_ALIASES.get(composer_norm, []):
+        keys.append((normalize_text(alias), "alias"))
+    return keys
+
+
 def main() -> None:
     if not ARTISTS_PATH.exists():
         print(f"[ERROR] artists.dat not found in {HETREC_DIR}")
         print("  Run data/scripts/01_download.sh first.")
         sys.exit(1)
 
-    # ── 1. Load HetRec artists → primary catalog ──────────────────────────────
     print(f"Loading {ARTISTS_PATH} ...")
     artists = pd.read_csv(ARTISTS_PATH, sep="\t", encoding="utf-8", on_bad_lines="skip")
     artists.columns = [c.strip().lower() for c in artists.columns]
-    artists = artists.rename(columns={"id": "track_id", "name": "artist", "pictureurl": "picture_url"})
+    artists = artists.rename(columns={"id": "artist_id", "name": "artist", "pictureurl": "picture_url"})
+    artists["artist_id"] = pd.to_numeric(artists["artist_id"], errors="coerce").astype("Int64")
+    artists["artist"] = artists["artist"].map(normalize_text)
+    artists = artists[[c for c in ["artist_id", "artist", "url"] if c in artists.columns]]
+    artists = artists.dropna(subset=["artist_id", "artist"]).drop_duplicates(subset=["artist_id"])
+    artists["artist_id"] = artists["artist_id"].astype(int)
+    artists["musicnet_id"] = np.nan
 
-    artists["track_id"] = pd.to_numeric(artists["track_id"], errors="coerce").astype("Int64")
-    artists["artist"]   = normalize_text(artists["artist"])
+    audio_map = pd.DataFrame(columns=["artist_id", "artist", "musicnet_id", "composer_raw", "match_key", "match_type"])
 
-    # Keep useful columns
-    keep = ["track_id", "artist", "url"]
-    artists = artists[[c for c in keep if c in artists.columns]]
-    artists = artists.dropna(subset=["track_id", "artist"])
-    artists = artists.drop_duplicates(subset=["track_id"])
-    artists["musicnet_id"] = np.nan   # placeholder; filled below
-
-    print(f"  HetRec catalog: {len(artists)} artists")
-
-    # ── 2. Enrich with MusicNet where composers overlap ────────────────────────
-    audio_map_rows = []
     if MUSICNET_PATH.exists():
-        print(f"Loading MusicNet metadata for audio enrichment ...")
-        mn = pd.read_csv(MUSICNET_PATH)
-        mn.columns = [c.strip().lower() for c in mn.columns]
-        mn = mn.rename(columns={"id": "musicnet_id", "composer": "composer_raw"})
-        mn["composer_norm"] = mn["composer_raw"].apply(normalize_composer)
-        mn["musicnet_id"]   = pd.to_numeric(mn["musicnet_id"], errors="coerce").astype("Int64")
+        print("Loading MusicNet metadata for audio enrichment ...")
+        musicnet = pd.read_csv(MUSICNET_PATH)
+        musicnet.columns = [c.strip().lower() for c in musicnet.columns]
+        musicnet = musicnet.rename(columns={"id": "musicnet_id", "composer": "composer_raw"})
+        musicnet["musicnet_id"] = pd.to_numeric(musicnet["musicnet_id"], errors="coerce").astype("Int64")
+        musicnet = musicnet.dropna(subset=["musicnet_id", "composer_raw"]).copy()
+        musicnet["musicnet_id"] = musicnet["musicnet_id"].astype(int)
+        musicnet["composer_norm"] = musicnet["composer_raw"].map(normalize_composer)
 
-        # For each MusicNet composer, find matching HetRec artist rows
-        for _, mn_row in mn.iterrows():
-            key  = mn_row["composer_norm"]
-            mask = artists["artist"].str.contains(re.escape(key), na=False)
-            if mask.any():
-                for hetrec_id in artists.loc[mask, "track_id"]:
-                    audio_map_rows.append({
-                        "track_id":   int(hetrec_id),
-                        "musicnet_id": int(mn_row["musicnet_id"]),
-                    })
-                # Mark the first matched HetRec artist with musicnet_id
-                first_idx = artists[mask].index[0]
-                artists.at[first_idx, "musicnet_id"] = mn_row["musicnet_id"]
+        artist_name_to_ids = artists.groupby("artist")["artist_id"].apply(list).to_dict()
+        rows: list[dict[str, object]] = []
 
-        n_enriched = artists["musicnet_id"].notna().sum()
-        print(f"  MusicNet enrichment: {n_enriched} HetRec artists linked to audio")
-    else:
-        print("  [SKIP] musicnet_metadata.csv not found — skipping audio enrichment")
+        for _, row in musicnet.iterrows():
+            chosen_key = None
+            chosen_type = None
+            candidate_ids: list[int] = []
+            for key, match_type in candidate_match_keys(row["composer_norm"]):
+                ids = artist_name_to_ids.get(key, [])
+                if len(ids) == 1:
+                    chosen_key = key
+                    chosen_type = match_type
+                    candidate_ids = ids
+                    break
+                if len(ids) > 1:
+                    candidate_ids = []
+                    break
+            if not candidate_ids:
+                continue
+            artist_id = int(candidate_ids[0])
+            artist_name = artists.loc[artists["artist_id"] == artist_id, "artist"].iloc[0]
+            rows.append({
+                "artist_id": artist_id,
+                "artist": artist_name,
+                "musicnet_id": int(row["musicnet_id"]),
+                "composer_raw": str(row["composer_raw"]),
+                "match_key": chosen_key,
+                "match_type": chosen_type,
+            })
 
-    # ── 3. Save main catalog ──────────────────────────────────────────────────
+        if rows:
+            audio_map = pd.DataFrame(rows).drop_duplicates(subset=["artist_id", "musicnet_id"])
+            first_musicnet = audio_map.groupby("artist_id", as_index=False)["musicnet_id"].min()
+            artists = artists.merge(first_musicnet, on="artist_id", how="left", suffixes=("", "_mapped"))
+            artists["musicnet_id"] = artists["musicnet_id_mapped"].combine_first(artists["musicnet_id"])
+            artists = artists.drop(columns=["musicnet_id_mapped"])
+
+    artists = artists[["artist_id", "artist", "url", "musicnet_id"]].sort_values("artist_id")
     artists.to_csv(OUTPUT_PATH, index=False)
-    print(f"\n[DONE] track_metadata.csv — {len(artists)} rows → {OUTPUT_PATH}")
-    print(artists.head(5).to_string(index=False))
-
-    # ── 4. Save audio map (for Person 3) ─────────────────────────────────────
-    if audio_map_rows:
-        audio_map = pd.DataFrame(audio_map_rows).drop_duplicates()
-        audio_map.to_csv(AUDIO_MAP_PATH, index=False)
-        print(f"\n[DONE] musicnet_audio_map.csv — {len(audio_map)} rows → {AUDIO_MAP_PATH}")
-    else:
-        print("\n  [INFO] No audio map rows (no overlap found).")
+    audio_map.sort_values(["artist_id", "musicnet_id"]).to_csv(AUDIO_MAP_PATH, index=False)
+    print(f"[DONE] track_metadata.csv → {OUTPUT_PATH}")
+    print(f"[DONE] musicnet_audio_map.csv → {AUDIO_MAP_PATH}")
 
 
 if __name__ == "__main__":

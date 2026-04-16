@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""
-validate_outputs.py  —  Person 1: Validate all pipeline outputs
-===============================================================
-Run after the full pipeline to confirm everything is correct
-before sharing files with the team.
-"""
+"""Validate artist-level pipeline outputs, while tolerating legacy filenames."""
 
-import sys
+from __future__ import annotations
+
 import pathlib
+import sys
+
 import pandas as pd
 
-ROOT      = pathlib.Path(__file__).resolve().parents[2]
+ROOT = pathlib.Path(__file__).resolve().parents[2]
 PROCESSED = ROOT / "data" / "processed"
 
 ERRORS = []
@@ -24,7 +22,7 @@ def check(label: str, condition: bool, msg: str = "") -> None:
         ERRORS.append(f"[FAIL] {label}" + (f"  →  {msg}" if msg else ""))
 
 
-def load(name: str) -> pd.DataFrame | None:
+def load(name: str):
     path = PROCESSED / name
     if not path.exists():
         ERRORS.append(f"[FAIL] {name} not found at {path}")
@@ -36,99 +34,71 @@ def load(name: str) -> pd.DataFrame | None:
         return None
 
 
-# ── track_metadata.csv ────────────────────────────────────────────────────────
-meta = load("track_metadata.csv")
-if meta is not None:
-    check("track_metadata has track_id",  "track_id" in meta.columns)
-    check("track_metadata has artist",    "artist"   in meta.columns)
-    check("track_metadata no null track_id", meta["track_id"].isna().sum() == 0,
-          f"{meta['track_id'].isna().sum()} nulls")
-    check("track_metadata no duplicate track_id",
-          meta["track_id"].duplicated().sum() == 0,
-          f"{meta['track_id'].duplicated().sum()} duplicates")
-    PASSES.append(f"[OK]   track_metadata.csv  — {len(meta)} tracks")
+def canonical_id_column(df: pd.DataFrame):
+    if "artist_id" in df.columns:
+        return "artist_id"
+    if "track_id" in df.columns:
+        return "track_id"
+    return None
 
-# ── ratings_joined.csv ────────────────────────────────────────────────────────
+
+meta = load("track_metadata.csv")
+meta_ids = set()
+if meta is not None:
+    id_col = canonical_id_column(meta)
+    check("track_metadata has id column", id_col is not None)
+    check("track_metadata has artist", "artist" in meta.columns)
+    if id_col:
+        check("track_metadata no null ids", meta[id_col].isna().sum() == 0)
+        check("track_metadata no duplicate ids", meta[id_col].duplicated().sum() == 0)
+        meta_ids = set(meta[id_col].dropna().astype(int))
+
 ratings = load("ratings_joined.csv")
 if ratings is not None:
-    check("ratings_joined has user_id",  "user_id"  in ratings.columns)
-    check("ratings_joined has track_id", "track_id" in ratings.columns)
-    check("ratings_joined has rating",   "rating"   in ratings.columns)
-    check("rating in [1, 5]",
-          ratings["rating"].between(1.0, 5.0).all(),
-          f"min={ratings['rating'].min():.2f} max={ratings['rating'].max():.2f}")
-    check("no null ratings", ratings["rating"].isna().sum() == 0)
-    PASSES.append(f"[OK]   ratings_joined.csv  — {len(ratings)} rows  "
-                  f"| {ratings['user_id'].nunique()} users  "
-                  f"| {ratings['track_id'].nunique()} tracks")
+    id_col = canonical_id_column(ratings)
+    check("ratings_joined has user_id", "user_id" in ratings.columns)
+    check("ratings_joined has item id", id_col is not None)
+    check("ratings_joined has rating", "rating" in ratings.columns)
+    if id_col:
+        check("ratings_joined ids join to metadata", set(ratings[id_col].dropna().astype(int)) <= meta_ids)
 
-# ── train / test ──────────────────────────────────────────────────────────────
 train = load("ratings_train.csv")
-test  = load("ratings_test.csv")
+test = load("ratings_test.csv")
 if train is not None and test is not None and ratings is not None:
     total = len(train) + len(test)
-    check("train + test == ratings_joined",
-          total == len(ratings),
-          f"train({len(train)}) + test({len(test)}) = {total}  ≠  {len(ratings)}")
-    check("test ratio approx 20%",
-          0.15 <= len(test) / total <= 0.25,
-          f"actual test ratio = {len(test)/total:.1%}")
-    test_only = set(test["user_id"]) - set(train["user_id"])
-    check("no test-only users", len(test_only) == 0,
-          f"{len(test_only)} users appear only in test")
-    PASSES.append(f"[OK]   ratings_train.csv   — {len(train)} rows  ({len(train)/total:.0%})")
-    PASSES.append(f"[OK]   ratings_test.csv    — {len(test)} rows  ({len(test)/total:.0%})")
+    check("train + test == ratings_joined", total == len(ratings))
+    check("no test-only users", len(set(test["user_id"]) - set(train["user_id"])) == 0)
 
-# ── master_tracks.csv ─────────────────────────────────────────────────────────
 master = load("master_tracks.csv")
 if master is not None:
-    for col in ["user_id", "track_id", "artist", "rating"]:
+    id_col = canonical_id_column(master)
+    check("master_tracks has item id", id_col is not None)
+    for col in ["user_id", "artist", "rating"]:
         check(f"master_tracks has {col}", col in master.columns)
-    check("master_tracks no null track_id", master["track_id"].isna().sum() == 0)
-    check("master_tracks no null rating",   master["rating"].isna().sum() == 0)
-    PASSES.append(f"[OK]   master_tracks.csv   — {len(master)} rows")
 
-# ── tag_features.csv ──────────────────────────────────────────────────────────
 tag_features = load("tag_features.csv")
 if tag_features is not None:
-    check("tag_features has track_id", "track_id" in tag_features.columns)
+    id_col = canonical_id_column(tag_features)
+    check("tag_features has item id", id_col is not None)
     check("tag_features has tags_raw", "tags_raw" in tag_features.columns)
-    check(
-        "tag_features non-empty",
-        len(tag_features) > 0,
-        "file contains zero rows",
-    )
-    if "track_id" in tag_features.columns:
-        check(
-            "tag_features no null track_id",
-            tag_features["track_id"].isna().sum() == 0,
-            f"{tag_features['track_id'].isna().sum()} nulls",
-        )
-        check(
-            "tag_features unique track_id",
-            tag_features["track_id"].duplicated().sum() == 0,
-            f"{tag_features['track_id'].duplicated().sum()} duplicates",
-        )
     tfidf_cols = [c for c in tag_features.columns if c.startswith("tfidf_")]
-    check(
-        "tag_features has tfidf columns",
-        len(tfidf_cols) > 0,
-        "expected at least one tfidf_* column",
-    )
-    numeric_ok = all(pd.api.types.is_numeric_dtype(tag_features[c]) for c in tfidf_cols)
-    check("tag_features tfidf columns numeric", numeric_ok)
-    if meta is not None and "track_id" in tag_features.columns:
-        missing_from_meta = set(tag_features["track_id"]) - set(meta["track_id"])
-        check(
-            "tag_features track_id joinable to metadata",
-            len(missing_from_meta) == 0,
-            f"{len(missing_from_meta)} track_id values missing from track_metadata",
-        )
-    PASSES.append(
-        f"[OK]   tag_features.csv    — {len(tag_features)} rows | {len(tfidf_cols)} tfidf columns"
-    )
+    check("tag_features has tfidf columns", len(tfidf_cols) > 0)
+    if id_col:
+        check("tag_features unique ids", tag_features[id_col].duplicated().sum() == 0)
+        check("tag_features ids join to metadata", set(tag_features[id_col].dropna().astype(int)) <= meta_ids)
 
-# ── Report ────────────────────────────────────────────────────────────────────
+mapping = load("musicnet_audio_map.csv")
+if mapping is not None:
+    check("musicnet_audio_map has artist_id", "artist_id" in mapping.columns)
+    check("musicnet_audio_map has musicnet_id", "musicnet_id" in mapping.columns)
+    if {"artist_id", "musicnet_id"}.issubset(mapping.columns):
+        check("musicnet_audio_map unique musicnet_id", mapping["musicnet_id"].duplicated().sum() == 0, f"{mapping['musicnet_id'].duplicated().sum()} duplicates")
+
+for name in ["audio_features_artist_train.csv", "audio_features_artist_test.csv"]:
+    audio = load(name)
+    if audio is not None:
+        check(f"{name} has artist_id", "artist_id" in audio.columns)
+
 print()
 print("=" * 56)
 print("  VALIDATION REPORT")

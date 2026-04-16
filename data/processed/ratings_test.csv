@@ -1,4 +1,4 @@
-user_id,track_id,artist,rating
+user_id,artist_id,artist,rating
 2,64,ryksopp,3.486
 2,90,kosheen,3.1858
 2,81,portishead,3.2787
@@ -7398,7 +7398,7 @@ user_id,track_id,artist,rating
 810,2338,ebnem ferah,2.2887
 810,10272,kira,1.8363
 810,10263,rafet el roman,1.9381
-810,10278,murat kekll,1.7086
+810,10278,murat kekilli,1.7086
 810,10250,evval sam,2.8028
 810,10281,ebru yaar,1.6672
 810,10259,13,2.0658
@@ -12340,7 +12340,7 @@ user_id,track_id,artist,rating
 1386,8454,blent ortagil,2.6721
 1386,14254,feridun dzaa,2.3502
 1386,2616,nouvelle vague,2.3797
-1386,14257,zlem tekn,2.3019
+1386,14257,zlem tekin,2.3019
 1386,6930,jay-jay johanson,2.5711
 1386,5914,my brightest diamond,2.7585
 1386,9056,aziza mustafa zadeh,2.4068
@@ -18524,7 +18524,7 @@ user_id,track_id,artist,rating
 2095,18693,anastasia,1.9381
 2095,17982,aynur doan,2.2088
 2095,18696,hakan yeilyurt,1.9181
-2095,18674,attila lhan,2.2818
+2095,18674,attila ilhan,2.2818
 2095,18673,paula darwish,2.2887
 2095,18680,servet kocakaya,2.1819
 2095,18667,axiom of choice,2.4551

@@ -1,20 +1,23 @@
 import argparse
+import logging
+import threading
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from pathlib import Path
+
 import librosa
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor, as_completed
-import logging
-import threading
 from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
 METADATA_PATH = Path("data/raw/musicnet_metadata.csv")
-OUTPUT_DIR    = Path("data/embeds")
-SR            = 22050
-DURATION      = 60  # seconds
+MAP_PATH = Path("data/processed/musicnet_audio_map.csv")
+OUTPUT_DIR = Path("data/embeds")
+PROCESSED_DIR = Path("data/processed")
+SR = 22050
+DURATION = 60  # seconds
 
 SPLITS = {
     "train": Path("data/raw/musicnet/train_data"),
@@ -23,11 +26,11 @@ SPLITS = {
 
 
 def extract_features(args: tuple) -> tuple[str, dict | None]:
-    track_id, wav_path = args
+    musicnet_id, wav_path = args
     try:
         y, sr = librosa.load(wav_path, sr=SR, mono=True, duration=DURATION)
-    except Exception as e:
-        return track_id, None
+    except Exception:
+        return musicnet_id, None
 
     feats = {}
 
@@ -49,7 +52,7 @@ def extract_features(args: tuple) -> tuple[str, dict | None]:
     for i, v in enumerate(contrast.mean(axis=1), start=1):
         feats[f"contrast_{i}_mean"] = float(v)
 
-    return track_id, feats
+    return musicnet_id, feats
 
 
 def load_existing_ids(output_path: Path) -> set:
@@ -65,7 +68,7 @@ def load_existing_ids(output_path: Path) -> set:
         return set()
 
 
-def process_split(split_name: str, audio_dir: Path, track_ids: list[str], workers: int) -> None:
+def process_split(split_name: str, audio_dir: Path, track_ids: list[str], workers: int) -> Path:
     output_path = OUTPUT_DIR / f"audio_features_{split_name}.csv"
     already_done = load_existing_ids(output_path)
 
@@ -85,8 +88,8 @@ def process_split(split_name: str, audio_dir: Path, track_ids: list[str], worker
 
     log.info(f"[{split_name}] {len(pending)} tracks to process, {len(already_done)} already done, {workers} workers")
 
-    def write_row(track_id: str, feats: dict, header_ref: list) -> None:
-        feats["musicnet_id"] = track_id
+    def write_row(musicnet_id: str, feats: dict, header_ref: list) -> None:
+        feats["musicnet_id"] = musicnet_id
         row_df = pd.DataFrame([feats])
         cols = ["musicnet_id"] + [c for c in row_df.columns if c != "musicnet_id"]
         row_df = row_df[cols]
@@ -100,14 +103,59 @@ def process_split(split_name: str, audio_dir: Path, track_ids: list[str], worker
         futures = {executor.submit(extract_features, args): args[0] for args in pending}
         with tqdm(total=len(futures), desc=f"{split_name}") as pbar:
             for future in as_completed(futures):
-                track_id, feats = future.result()
+                musicnet_id, feats = future.result()
                 if feats is not None:
-                    write_row(track_id, feats, header_ref)
+                    write_row(musicnet_id, feats, header_ref)
                 else:
-                    log.warning(f"[{split_name}] Failed to extract features for track {track_id}")
+                    log.warning(f"[{split_name}] Failed to extract features for track {musicnet_id}")
                 pbar.update(1)
 
     log.info(f"[{split_name}] Done. Output: {output_path}")
+    return output_path
+
+
+def build_artist_level_output(split_name: str, raw_output_path: Path) -> None:
+    if not MAP_PATH.exists():
+        log.warning("musicnet_audio_map.csv not found — skipping artist-level audio output")
+        return
+
+    mapping = pd.read_csv(MAP_PATH)
+    if not {"artist_id", "musicnet_id"}.issubset(mapping.columns):
+        log.warning("musicnet_audio_map.csv missing artist_id/musicnet_id — skipping artist-level audio output")
+        return
+
+    if int(mapping["musicnet_id"].duplicated().sum()) > 0:
+        raise ValueError("musicnet_audio_map.csv contains duplicate musicnet_id values")
+
+    raw = pd.read_csv(raw_output_path, dtype={"musicnet_id": str})
+    mapping["musicnet_id"] = mapping["musicnet_id"].astype(str)
+    merged = raw.merge(mapping, on="musicnet_id", how="inner")
+    if merged.empty:
+        log.warning(f"[{split_name}] No mapped audio rows found after merge")
+        return
+
+    numeric_cols = [
+        col for col in merged.columns
+        if col not in {"artist_id", "artist", "musicnet_id", "composer_raw", "match_key", "match_type"}
+        and pd.api.types.is_numeric_dtype(merged[col])
+    ]
+
+    grouped = merged.groupby(["artist_id", "artist"], as_index=False)[numeric_cols].mean()
+    musicnet_lists = (
+        merged.groupby("artist_id")["musicnet_id"]
+        .apply(lambda s: ",".join(sorted(set(map(str, s)))))
+        .rename("musicnet_ids")
+        .reset_index()
+    )
+    recording_counts = merged.groupby("artist_id").size().rename("recording_count").reset_index()
+    artist_level = grouped.merge(musicnet_lists, on="artist_id", how="left").merge(recording_counts, on="artist_id", how="left")
+    lead_cols = ["artist_id", "artist", "musicnet_ids", "recording_count"]
+    rest_cols = [c for c in artist_level.columns if c not in lead_cols]
+    artist_level = artist_level[lead_cols + rest_cols].sort_values("artist_id")
+
+    out_path = PROCESSED_DIR / f"audio_features_artist_{split_name}.csv"
+    artist_level.to_csv(out_path, index=False)
+    log.info(f"[{split_name}] Artist-level output: {out_path}")
 
 
 def main():
@@ -119,6 +167,7 @@ def main():
     all_ids = metadata["id"].tolist()
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
     for split_name, audio_dir in SPLITS.items():
         if not audio_dir.exists():
@@ -129,7 +178,8 @@ def main():
         split_ids = [tid for tid in all_ids if tid in available_wavs]
 
         log.info(f"[{split_name}] {len(split_ids)} tracks found in {audio_dir}")
-        process_split(split_name, audio_dir, split_ids, args.workers)
+        raw_output_path = process_split(split_name, audio_dir, split_ids, args.workers)
+        build_artist_level_output(split_name, raw_output_path)
 
 
 if __name__ == "__main__":

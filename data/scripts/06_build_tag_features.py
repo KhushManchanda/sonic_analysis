@@ -1,30 +1,5 @@
 #!/usr/bin/env python3
-"""
-06_build_tag_features.py  —  Person 2: Build Last.fm semantic tag features
-=========================================================================
-
-Primary source:
-    data/raw/hetrec2011-lastfm-2k/tags.dat
-    data/raw/hetrec2011-lastfm-2k/user_taggedartists.dat
-    data/processed/track_metadata.csv
-
-Optional fallback:
-    Last.fm API for artists with no useful local tags.
-    Cache path: data/raw/lastfm_cache/artist_top_tags.json
-
-Writes:
-    data/processed/tag_features.csv
-
-Output schema:
-    track_id   int
-    tags_raw   str   comma-separated top normalized tags
-    tfidf_*    float numeric TF-IDF columns over a capped vocabulary
-
-Notes:
-    - In this repository, track_id = HetRec artist_id.
-    - HetRec local tags are artist-level, so the pipeline aggregates tags per
-      track_id/artist first and only uses the API as a lightweight fallback.
-"""
+"""Build artist-level Last.fm semantic tag features."""
 
 from __future__ import annotations
 
@@ -119,7 +94,7 @@ def fetch_artist_top_tags(artist: str, api_key: str, cache: dict[str, list[str]]
     """
     Fallback fetch from Last.fm.
 
-    HetRec tags are artist-centric and the shared pipeline uses track_id=artist_id,
+    HetRec tags are artist-centric and the shared pipeline uses artist_id,
     so artist.getTopTags is the compatible fallback when no local tags exist.
     """
     key = artist.strip().lower()
@@ -174,28 +149,28 @@ def build_local_tag_table() -> pd.DataFrame:
     print(f"Loading {USER_TAGS_PATH} ...")
     user_tags = pd.read_csv(USER_TAGS_PATH, sep="\t", encoding="utf-8", on_bad_lines="skip")
     user_tags.columns = [c.strip().lower() for c in user_tags.columns]
-    user_tags = user_tags.rename(columns={"artistid": "track_id", "tagid": "tag_id"})
-    user_tags["track_id"] = pd.to_numeric(user_tags["track_id"], errors="coerce").astype("Int64")
+    user_tags = user_tags.rename(columns={"artistid": "artist_id", "tagid": "tag_id"})
+    user_tags["artist_id"] = pd.to_numeric(user_tags["artist_id"], errors="coerce").astype("Int64")
     user_tags["tag_id"] = pd.to_numeric(user_tags["tag_id"], errors="coerce").astype("Int64")
-    user_tags = user_tags.dropna(subset=["track_id", "tag_id"])
+    user_tags = user_tags.dropna(subset=["artist_id", "tag_id"])
 
     merged = user_tags.merge(tags, on="tag_id", how="left")
     merged = merged.dropna(subset=["tag_name"])
 
-    # Count distinct users per (track, tag) to avoid overweighting repeated annotations.
+    # Count distinct users per (artist, tag) to avoid overweighting repeated annotations.
     agg = (
-        merged.groupby(["track_id", "tag_name"], as_index=False)["userid"]
+        merged.groupby(["artist_id", "tag_name"], as_index=False)["userid"]
         .nunique()
         .rename(columns={"userid": "tag_user_count"})
-        .sort_values(["track_id", "tag_user_count", "tag_name"], ascending=[True, False, True])
+        .sort_values(["artist_id", "tag_user_count", "tag_name"], ascending=[True, False, True])
     )
-    agg["track_id"] = agg["track_id"].astype(int)
+    agg["artist_id"] = agg["artist_id"].astype(int)
     return agg
 
 
-def aggregate_tags_by_track(tag_counts: pd.DataFrame) -> tuple[pd.DataFrame, set[int]]:
+def aggregate_tags_by_artist(tag_counts: pd.DataFrame) -> tuple[pd.DataFrame, set[int]]:
     tag_lists = (
-        tag_counts.groupby("track_id")
+        tag_counts.groupby("artist_id")
         .apply(
             lambda frame: pd.Series(
                 {
@@ -206,22 +181,22 @@ def aggregate_tags_by_track(tag_counts: pd.DataFrame) -> tuple[pd.DataFrame, set
         )
         .reset_index()
     )
-    local_ids = set(tag_lists["track_id"].tolist())
+    local_ids = set(tag_lists["artist_id"].tolist())
     return tag_lists, local_ids
 
 
-def maybe_enrich_with_api(track_meta: pd.DataFrame, tag_lists: pd.DataFrame) -> pd.DataFrame:
+def maybe_enrich_with_api(artist_meta: pd.DataFrame, tag_lists: pd.DataFrame) -> pd.DataFrame:
     api_key = os.getenv("LASTFM_API_KEY")
-    all_tracks = track_meta[["track_id", "artist"]].copy()
-    merged = all_tracks.merge(tag_lists, on="track_id", how="left")
+    all_artists = artist_meta[["artist_id", "artist"]].copy()
+    merged = all_artists.merge(tag_lists, on="artist_id", how="left")
     missing_mask = merged["tags_all"].isna() | merged["tags_all"].map(lambda x: len(x) == 0 if isinstance(x, list) else True)
-    missing_rows = merged.loc[missing_mask, ["track_id", "artist"]].drop_duplicates()
+    missing_rows = merged.loc[missing_mask, ["artist_id", "artist"]].drop_duplicates()
 
     if missing_rows.empty:
-        print("No tracks missing local tags.")
+        print("No artists missing local tags.")
         return merged
 
-    print(f"Tracks missing local tags: {len(missing_rows)}")
+    print(f"Artists missing local tags: {len(missing_rows)}")
     if not api_key:
         print("[INFO] LASTFM_API_KEY not set — skipping API fallback.")
         return merged
@@ -234,7 +209,7 @@ def maybe_enrich_with_api(track_meta: pd.DataFrame, tag_lists: pd.DataFrame) -> 
         tags = fetch_artist_top_tags(str(row["artist"]), api_key=api_key, cache=cache)
         fallback_rows.append(
             {
-                "track_id": int(row["track_id"]),
+                "artist_id": int(row["artist_id"]),
                 "tags_all": tags,
                 "tags_raw": ",".join(tags[:TOP_TAGS_RAW]),
             }
@@ -247,12 +222,12 @@ def maybe_enrich_with_api(track_meta: pd.DataFrame, tag_lists: pd.DataFrame) -> 
         return merged
 
     merged = merged.drop(columns=["tags_all", "tags_raw"], errors="ignore")
-    merged = merged.merge(tag_lists, on="track_id", how="left")
+    merged = merged.merge(tag_lists, on="artist_id", how="left")
 
     # Fill only where local tags are absent.
     merged = merged.merge(
         fallback_df.rename(columns={"tags_all": "tags_all_fallback", "tags_raw": "tags_raw_fallback"}),
-        on="track_id",
+        on="artist_id",
         how="left",
     )
     merged["tags_all"] = merged["tags_all"].where(
@@ -275,7 +250,7 @@ def build_feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
     matrix = vectorizer.fit_transform(documents)
     feature_names = [f"tfidf_{name.replace('-', '_').replace('+', 'plus')}" for name in vectorizer.get_feature_names_out()]
     features = pd.DataFrame(matrix.toarray(), columns=feature_names, index=df.index)
-    out = pd.concat([df[["track_id", "tags_raw"]].copy(), features], axis=1)
+    out = pd.concat([df[["artist_id", "tags_raw"]].copy(), features], axis=1)
 
     # Ensure rows with no tags still have usable numeric feature columns.
     out["tags_raw"] = out["tags_raw"].fillna("")
@@ -287,12 +262,12 @@ def build_feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
 def validate_output(df: pd.DataFrame) -> None:
     if df.empty:
         raise ValueError("tag_features output is empty")
-    if "track_id" not in df.columns or "tags_raw" not in df.columns:
+    if "artist_id" not in df.columns or "tags_raw" not in df.columns:
         raise ValueError("tag_features output missing required columns")
-    if df["track_id"].isna().any():
-        raise ValueError("tag_features contains null track_id")
-    if df["track_id"].duplicated().any():
-        raise ValueError("tag_features contains duplicate track_id")
+    if df["artist_id"].isna().any():
+        raise ValueError("tag_features contains null artist_id")
+    if df["artist_id"].duplicated().any():
+        raise ValueError("tag_features contains duplicate artist_id")
 
     numeric_cols = [c for c in df.columns if c.startswith("tfidf_")]
     if not numeric_cols:
@@ -306,19 +281,19 @@ def main() -> None:
     require_inputs()
     PROCESSED.mkdir(parents=True, exist_ok=True)
 
-    track_meta = pd.read_csv(TRACK_METADATA_PATH, dtype={"track_id": int})[["track_id", "artist"]]
-    track_meta = track_meta.drop_duplicates(subset=["track_id"]).sort_values("track_id").reset_index(drop=True)
+    artist_meta = pd.read_csv(TRACK_METADATA_PATH, dtype={"artist_id": int})[["artist_id", "artist"]]
+    artist_meta = artist_meta.drop_duplicates(subset=["artist_id"]).sort_values("artist_id").reset_index(drop=True)
 
     tag_counts = build_local_tag_table()
-    tag_lists, _ = aggregate_tags_by_track(tag_counts)
-    enriched = maybe_enrich_with_api(track_meta, tag_lists)
+    tag_lists, _ = aggregate_tags_by_artist(tag_counts)
+    enriched = maybe_enrich_with_api(artist_meta, tag_lists)
     enriched["tags_all"] = enriched["tags_all"].map(
         lambda x: unique_preserve_order([normalize_tag(v) for v in x]) if isinstance(x, list) else []
     )
     enriched["tags_raw"] = enriched["tags_raw"].fillna("")
 
     feature_df = build_feature_matrix(enriched)
-    feature_df = feature_df.sort_values("track_id").reset_index(drop=True)
+    feature_df = feature_df.sort_values("artist_id").reset_index(drop=True)
     validate_output(feature_df)
 
     feature_df.to_csv(OUTPUT_PATH, index=False)
@@ -327,7 +302,7 @@ def main() -> None:
     tfidf_cols = [c for c in feature_df.columns if c.startswith("tfidf_")]
     print(f"[DONE] tag_features.csv → {OUTPUT_PATH}")
     print(f"  Rows             : {len(feature_df)}")
-    print(f"  Tracks with tags : {nonempty}")
+    print(f"  Artists with tags: {nonempty}")
     print(f"  TF-IDF columns   : {len(tfidf_cols)}")
     print(feature_df.head(5).to_string(index=False))
 

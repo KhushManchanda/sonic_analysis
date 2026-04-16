@@ -1,4 +1,4 @@
-user_id,track_id,artist,rating
+user_id,artist_id,artist,rating
 112,2833,blind sinners,1.5645
 615,8597,oih,1.459
 1013,4229, ,1.6198
@@ -3175,7 +3175,7 @@ user_id,track_id,artist,rating
 83,2311,kostas pavlidis,3.0755
 83,2298,sezen aksu,3.5521
 83,2333,emel sayn,2.8457
-83,2305,lhan rem,3.1255
+83,2305,ilhan irem,3.1255
 83,2319,nilfer,2.9949
 83,2329,selda bacan,2.8562
 84,735,the rolling stones,2.5442
@@ -29594,7 +29594,7 @@ user_id,track_id,artist,rating
 810,2309,hande yener,2.0913
 810,7262,duman,1.8363
 810,10257,enay,2.1476
-810,10267,ntizar,1.8738
+810,10267,intizar,1.8738
 810,10264,yui makino,1.9282
 810,333,avril lavigne,2.2953
 810,10277,zeynep bakan,1.7275
@@ -29608,7 +29608,7 @@ user_id,track_id,artist,rating
 810,10254,ayla dikmen,2.4447
 810,378,evanescence,2.292
 810,10276,tabir,1.7624
-810,10268,clal aydn,1.8738
+810,10268,iclal aydn,1.8738
 810,10256,glay,2.1956
 810,10273,kader,1.8087
 810,2312,ahmet kaya,2.5907
@@ -29616,8 +29616,8 @@ user_id,track_id,artist,rating
 810,10251,uma thurman,2.6602
 810,10282,cansu ko,1.6443
 810,10253,kra,2.604
-810,2305,lhan rem,2.4671
-810,10275,snan zen,1.7786
+810,2305,ilhan irem,2.4671
+810,10275,sinan zen,1.7786
 810,3462,[unknown],1.8738
 810,10261,intizar,1.9661
 810,10271,hakan peker,1.8363
@@ -44958,7 +44958,7 @@ user_id,track_id,artist,rating
 1254,13506,nugo sebil,2.6721
 1254,13498,murat esmer,3.1874
 1254,3417,ulver,2.84
-1254,13503,ncesaz,2.8604
+1254,13503,incesaz,2.8604
 1254,506,anathema,2.649
 1254,2716,dj shadow,2.9448
 1254,2299,zeki mren,2.8189
@@ -59146,7 +59146,7 @@ user_id,track_id,artist,rating
 1669,71,dido,2.1262
 1669,186,blackfield,2.6421
 1669,15965,let it flow,2.5457
-1669,15970,te gezen fiiller,2.0591
+1669,15970,ite gezen fiiller,2.0591
 1669,15971,hope to find,2.0382
 1669,726,apocalyptica,2.4161
 1669,504,him,2.2605
@@ -59545,7 +59545,7 @@ user_id,track_id,artist,rating
 1680,16030,hsn arkan,2.5668
 1680,2339,teoman,2.7859
 1680,538,maroon 5,2.5711
-1680,16023,pnhan,2.8085
+1680,16023,pinhani,2.8085
 1680,2006,pain of salvation,2.7666
 1680,6947,kazm koyuncu,2.7768
 1680,12085,bedk,2.6218
@@ -69786,7 +69786,7 @@ user_id,track_id,artist,rating
 1975,17966,anthony shakir,2.7705
 1976,1412,led zeppelin,2.9359
 1976,214,devotchka,2.769
-1976,13503,ncesaz,3.0621
+1976,13503,incesaz,3.0621
 1976,868,the doors,2.7882
 1976,197,tom waits,3.0968
 1976,610,miles davis,2.9325
@@ -71823,7 +71823,7 @@ user_id,track_id,artist,rating
 2030,18326,halil sezai parackolu,2.8028
 2030,697,sia,2.6279
 2030,6756,amiina,2.3083
-2030,13503,ncesaz,2.2784
+2030,13503,incesaz,2.2784
 2031,296,sugababes,3.2375
 2031,89,lady gaga,3.8952
 2031,3184,l'me immortelle,3.5756
@@ -74081,8 +74081,8 @@ user_id,track_id,artist,rating
 2095,18679,teodulija,2.1956
 2095,1109,yann tiersen,2.588
 2095,18692,farid farjad,1.9477
-2095,18675,smet zel,2.2454
-2095,18681,lkay akkaya,2.1772
+2095,18675,ismet zel,2.2454
+2095,18681,ilkay akkaya,2.1772
 2095,4972,jocelyn pook,2.4274
 2095,18677,lena chamamyan,2.2337
 2095,8452,hossein alizadeh,2.3387

@@ -1,4 +1,4 @@
-user_id,track_id,artist,rating
+user_id,artist_id,artist,rating
 2,51,duran duran,3.9289
 2,52,morcheeba,3.8719
 2,53,air,3.8622
@@ -3927,7 +3927,7 @@ user_id,track_id,artist,rating
 83,2302,nazan ncel,3.1487
 83,2303,haris alexiou,3.1454
 83,2304,yeni trk,3.1421
-83,2305,lhan rem,3.1255
+83,2305,ilhan irem,3.1255
 83,2306,mikis theodorakis,3.1247
 83,2307,zlf livaneli,3.1176
 83,2308,bar mano,3.1131
@@ -36978,7 +36978,7 @@ user_id,track_id,artist,rating
 810,1104,rammstein,1.6443
 810,2180,"marc seales, composer. new stories. ernie watts, saxophone.",1.8228
 810,2298,sezen aksu,1.9477
-810,2305,lhan rem,2.4671
+810,2305,ilhan irem,2.4671
 810,2308,bar mano,1.7275
 810,2309,hande yener,2.0913
 810,2312,ahmet kaya,2.5907
@@ -37005,18 +37005,18 @@ user_id,track_id,artist,rating
 810,10264,yui makino,1.9282
 810,10265,elveda rumeli,1.9181
 810,10266,nil burak,1.8967
-810,10267,ntizar,1.8738
-810,10268,clal aydn,1.8738
+810,10267,intizar,1.8738
+810,10268,iclal aydn,1.8738
 810,10269,guelay74,1.8738
 810,10270,paylas.de,1.8618
 810,10271,hakan peker,1.8363
 810,10272,kira,1.8363
 810,10273,kader,1.8087
 810,10274,cici kzlar,1.7786
-810,10275,snan zen,1.7786
+810,10275,sinan zen,1.7786
 810,10276,tabir,1.7624
 810,10277,zeynep bakan,1.7275
-810,10278,murat kekll,1.7086
+810,10278,murat kekilli,1.7086
 810,10279,bari mano,1.6885
 810,10280,sessizlik,1.6885
 810,10281,ebru yaar,1.6672
@@ -56198,7 +56198,7 @@ user_id,track_id,artist,rating
 1254,13500,nileppez,2.9531
 1254,13501,sophiatonic,2.932
 1254,13502,gkhan krdar,2.9048
-1254,13503,ncesaz,2.8604
+1254,13503,incesaz,2.8604
 1254,13504,fahir atakolu,2.8342
 1254,13505,janet & jak esim,2.6856
 1254,13506,nugo sebil,2.6721
@@ -61715,7 +61715,7 @@ user_id,track_id,artist,rating
 1386,14254,feridun dzaa,2.3502
 1386,14255,vedat sakman,2.3416
 1386,14256,perry blake,2.3239
-1386,14257,zlem tekn,2.3019
+1386,14257,zlem tekin,2.3019
 1386,14258,ray charles and betty carter,2.2986
 1387,63,enigma,2.2641
 1387,65,coldplay,2.6001
@@ -73969,7 +73969,7 @@ user_id,track_id,artist,rating
 1669,15967,zlem tekin,2.2296
 1669,15968,makine,2.2173
 1669,15969,benjamin ann,2.115
-1669,15970,te gezen fiiller,2.0591
+1669,15970,ite gezen fiiller,2.0591
 1669,15971,hope to find,2.0382
 1669,15972,hypnogaja,2.0081
 1669,15973,aylin aslm,2.0001
@@ -74428,7 +74428,7 @@ user_id,track_id,artist,rating
 1680,13888,tindersticks,2.6363
 1680,15537,alex beaupain,2.8808
 1680,16022,sakin,2.878
-1680,16023,pnhan,2.8085
+1680,16023,pinhani,2.8085
 1680,16024,incesaz,2.7904
 1680,16025,cem adrian,2.7674
 1680,16026,white willow,2.7312
@@ -87269,7 +87269,7 @@ user_id,track_id,artist,rating
 1976,9048,lhasa de sela,3.0327
 1976,9064,mor karbasi,2.7527
 1976,13498,murat esmer,2.725
-1976,13503,ncesaz,3.0621
+1976,13503,incesaz,3.0621
 1976,14646,brazzaville,2.8269
 1976,15562,paris combo,2.9027
 1976,17067,a hawk and a hacksaw,2.7956
@@ -89770,7 +89770,7 @@ user_id,track_id,artist,rating
 2030,12452,sagopa kajmer,2.5265
 2030,12718,pg.lost,2.2818
 2030,13498,murat esmer,2.8296
-2030,13503,ncesaz,2.2784
+2030,13503,incesaz,2.2784
 2030,14245,anjelika akbar,2.3019
 2030,15457,various artists,2.2784
 2030,17981,mercan dede,2.6513
@@ -92609,14 +92609,14 @@ user_id,track_id,artist,rating
 2095,18671,ciwan haco,2.3299
 2095,18672,minoo javan,2.3299
 2095,18673,paula darwish,2.2887
-2095,18674,attila lhan,2.2818
-2095,18675,smet zel,2.2454
+2095,18674,attila ilhan,2.2818
+2095,18675,ismet zel,2.2454
 2095,18676,mehmet atl,2.2376
 2095,18677,lena chamamyan,2.2337
 2095,18678,ibrahim paal,2.2045
 2095,18679,teodulija,2.1956
 2095,18680,servet kocakaya,2.1819
-2095,18681,lkay akkaya,2.1772
+2095,18681,ilkay akkaya,2.1772
 2095,18682,lejla jusic,2.1424
 2095,18683,nizamettin aric,2.1206
 2095,18684,hayedeh,2.115
