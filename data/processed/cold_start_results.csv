@@ -1,0 +1,10 @@
+model,segment,description,n_users,n_ratings,rmse,mae,precision_at_10,recall_at_10,ndcg_at_10
+Global Mean,cold,<= 5 train ratings,8,8,0.2975,0.2398,0.0,0.0,0.0
+Global Mean,near_cold,6–20 train ratings,19,52,0.3873,0.2645,0.0,0.0,0.0
+Global Mean,normal,> 20 train ratings,1857,18509,0.2583,0.1951,0.0,0.0,0.0
+MF (ratings only),cold,<= 5 train ratings,8,8,0.6518,0.4096,0.0,0.0,0.0
+MF (ratings only),near_cold,6–20 train ratings,19,52,0.6956,0.4963,0.0,0.0,0.0
+MF (ratings only),normal,> 20 train ratings,1857,18509,0.3696,0.2743,0.0,0.0,0.0
+MF + tags,cold,<= 5 train ratings,8,8,0.6519,0.4095,0.0,0.0,0.0
+MF + tags,near_cold,6–20 train ratings,19,52,0.7026,0.5005,0.0,0.0,0.0
+MF + tags,normal,> 20 train ratings,1857,18509,0.4457,0.3369,0.0013,0.0044,0.0032
