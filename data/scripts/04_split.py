@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 """
-04_split.py  —  Person 1: Train / test split
-=============================================
-Reads:  data/processed/ratings_joined.csv
+04_split.py  —  Artist-level train/test split with audio-overlap subsets.
+
+Reads:
+    data/processed/ratings_joined.csv
+    data/processed/musicnet_audio_map.csv (optional, for overlap subsets)
+
 Writes:
     data/processed/ratings_train.csv
     data/processed/ratings_test.csv
+    data/processed/ratings_train_overlap.csv
+    data/processed/ratings_test_overlap.csv
 
 Strategy:
-  Stratified by user — each user contributes 80% of their ratings to train
-  and 20% to test.  Users with fewer than 2 ratings go entirely to train to
-  prevent cold-start leakage into test.
+  - Stratified by user: each user contributes ~80% of ratings to train.
+  - Users with fewer than 2 ratings go entirely to train.
+  - No user is allowed to appear only in test.
+  - Overlap subsets are filtered copies of train/test restricted to artists that
+    have audio coverage according to musicnet_audio_map.csv.
 """
 
-import sys
 import pathlib
+import sys
 
-import numpy as np
 import pandas as pd
-from sklearn.model_selection import GroupShuffleSplit
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 ROOT      = pathlib.Path(__file__).resolve().parents[2]
@@ -27,6 +32,9 @@ PROCESSED = ROOT / "data" / "processed"
 INPUT_PATH  = PROCESSED / "ratings_joined.csv"
 TRAIN_PATH  = PROCESSED / "ratings_train.csv"
 TEST_PATH   = PROCESSED / "ratings_test.csv"
+MAP_PATH    = PROCESSED / "musicnet_audio_map.csv"
+TRAIN_OVERLAP_PATH = PROCESSED / "ratings_train_overlap.csv"
+TEST_OVERLAP_PATH  = PROCESSED / "ratings_test_overlap.csv"
 
 TEST_SIZE   = 0.20
 RANDOM_SEED = 42
@@ -38,7 +46,7 @@ def main() -> None:
         sys.exit(1)
 
     print(f"Loading {INPUT_PATH} ...")
-    df = pd.read_csv(INPUT_PATH, dtype={"user_id": int, "track_id": int})
+    df = pd.read_csv(INPUT_PATH, dtype={"user_id": int, "artist_id": int})
     print(f"  Total rows: {len(df)}")
 
     # ── Users with < 2 ratings go entirely to train ───────────────────────────
@@ -81,6 +89,19 @@ def main() -> None:
     test.to_csv(TEST_PATH,   index=False)
     print(f"\n[DONE] ratings_train.csv → {TRAIN_PATH}")
     print(f"[DONE] ratings_test.csv  → {TEST_PATH}")
+
+    overlap_ids: set[int] = set()
+    if MAP_PATH.exists():
+        mapping = pd.read_csv(MAP_PATH)
+        if "artist_id" in mapping.columns:
+            overlap_ids = set(pd.to_numeric(mapping["artist_id"], errors="coerce").dropna().astype(int))
+
+    train_overlap = train[train["artist_id"].isin(overlap_ids)].copy()
+    test_overlap = test[test["artist_id"].isin(overlap_ids)].copy()
+    train_overlap.to_csv(TRAIN_OVERLAP_PATH, index=False)
+    test_overlap.to_csv(TEST_OVERLAP_PATH, index=False)
+    print(f"[DONE] ratings_train_overlap.csv → {TRAIN_OVERLAP_PATH} ({len(train_overlap):,} rows)")
+    print(f"[DONE] ratings_test_overlap.csv  → {TEST_OVERLAP_PATH} ({len(test_overlap):,} rows)")
 
 
 if __name__ == "__main__":

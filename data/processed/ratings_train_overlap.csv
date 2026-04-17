@@ -1,2 +1,82 @@
 user_id,artist_id,artist,rating
+33,1130,ludwig van beethoven,2.7852
+33,1123,johann sebastian bach,2.932
+33,1139,maurice ravel,2.5668
+64,1139,maurice ravel,2.4362
+82,1139,maurice ravel,2.3719
+103,1130,ludwig van beethoven,2.434
+122,1130,ludwig van beethoven,1.7086
+149,1130,ludwig van beethoven,2.6784
+194,1130,ludwig van beethoven,2.8355
+293,1130,ludwig van beethoven,2.0591
+320,1123,johann sebastian bach,2.942
+352,1130,ludwig van beethoven,2.0453
+352,1121,wolfgang amadeus mozart,2.2376
+458,1121,wolfgang amadeus mozart,2.1866
+460,1130,ludwig van beethoven,3.1774
+460,1123,johann sebastian bach,3.1552
+460,1121,wolfgang amadeus mozart,3.0717
+468,1123,johann sebastian bach,2.8797
+468,1121,wolfgang amadeus mozart,2.7064
+471,1130,ludwig van beethoven,2.1371
+551,1130,ludwig van beethoven,1.7624
+581,1130,ludwig van beethoven,3.4638
+592,1123,johann sebastian bach,2.8995
+644,1130,ludwig van beethoven,2.1371
+654,1130,ludwig van beethoven,2.0913
+666,1121,wolfgang amadeus mozart,2.6066
+687,9271,franz schubert,1.2295
+687,1123,johann sebastian bach,1.0
+692,1123,johann sebastian bach,2.9831
+725,1123,johann sebastian bach,2.7176
+725,1121,wolfgang amadeus mozart,3.5418
+769,1121,wolfgang amadeus mozart,2.7186
+806,1121,wolfgang amadeus mozart,3.5571
+900,1130,ludwig van beethoven,2.5503
+960,1130,ludwig van beethoven,1.459
+1061,1130,ludwig van beethoven,2.5096
+1082,1121,wolfgang amadeus mozart,2.9467
+1147,1121,wolfgang amadeus mozart,2.1578
+1149,1121,wolfgang amadeus mozart,1.5645
+1199,1130,ludwig van beethoven,2.6732
+1204,1123,johann sebastian bach,2.6826
+1223,1123,johann sebastian bach,2.8831
+1226,1123,johann sebastian bach,2.4612
+1231,1130,ludwig van beethoven,2.9785
+1271,1123,johann sebastian bach,3.1918
+1329,1121,wolfgang amadeus mozart,2.618
+1329,1123,johann sebastian bach,3.1009
+1335,1123,johann sebastian bach,2.8189
+1345,1121,wolfgang amadeus mozart,2.2296
+1345,1130,ludwig van beethoven,2.756
+1345,9271,franz schubert,2.3473
+1367,1123,johann sebastian bach,2.6066
+1408,1130,ludwig van beethoven,1.0
+1410,9271,franz schubert,2.0453
+1493,1123,johann sebastian bach,2.5026
+1500,1123,johann sebastian bach,2.6255
+1563,15338,franz joseph haydn,1.4148
+1563,1123,johann sebastian bach,1.3034
+1563,1121,wolfgang amadeus mozart,1.3034
+1650,1121,wolfgang amadeus mozart,3.0047
+1700,1123,johann sebastian bach,2.1676
+1723,1123,johann sebastian bach,2.2173
+1723,1121,wolfgang amadeus mozart,2.1676
+1723,9271,franz schubert,1.975
+1723,1130,ludwig van beethoven,2.0724
+1754,1123,johann sebastian bach,2.6398
+1904,1123,johann sebastian bach,2.4068
+1923,1123,johann sebastian bach,2.9315
+1923,1130,ludwig van beethoven,3.0422
+1939,1121,wolfgang amadeus mozart,3.0337
+1939,1123,johann sebastian bach,2.5754
 1939,17769,brahms,2.6168
+1963,1121,wolfgang amadeus mozart,3.1606
+1964,1130,ludwig van beethoven,2.3387
+1974,1130,ludwig van beethoven,2.5061
+1974,1121,wolfgang amadeus mozart,2.499
+1977,1123,johann sebastian bach,2.5363
+1977,1130,ludwig van beethoven,2.6513
+2003,1121,wolfgang amadeus mozart,2.4274
+2007,1123,johann sebastian bach,3.3105
+2075,1121,wolfgang amadeus mozart,2.4749

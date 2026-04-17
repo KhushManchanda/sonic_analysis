@@ -11,14 +11,16 @@
 This project is artist-level on the HetRec side. Older filenames may still say
 "track", but the canonical recommender item is an artist.
 
-_Every_ integration-ready file produced by Persons 1, 2, and 3 should include
-`artist_id`. Person 4 should join on `artist_id`.
+_Every_ integration-ready file produced by the pipeline should include
+`artist_id` or be joinable to it through `musicnet_id` in the raw audio embed
+intermediate files. Modeling and final evaluation join on `artist_id`.
 
 ---
 
 ## File Registry
 
-All processed files live in `data/processed/`. Do **not** save outputs elsewhere.
+Processed integration outputs live in `data/processed/`. Final experiment and
+report-ready outputs live in `results/`.
 
 | File | Owner | Description |
 |------|-------|-------------|
@@ -26,10 +28,13 @@ All processed files live in `data/processed/`. Do **not** save outputs elsewhere
 | `ratings_joined.csv` | Person 1 | (user_id, artist_id, rating) full set |
 | `ratings_train.csv` | Person 1 | 80% train split |
 | `ratings_test.csv` | Person 1 | 20% test split |
+| `ratings_train_overlap.csv` | Integrated | Train rows restricted to audio-overlap artists |
+| `ratings_test_overlap.csv` | Integrated | Test rows restricted to audio-overlap artists |
 | `master_tracks.csv` | Person 1 | Flat join of ratings + metadata |
 | `tag_features.csv` | Person 2 | Last.fm tags per artist |
 | `audio_features_artist_train.csv` | Person 3 | Train-split audio features merged to artist_id |
 | `audio_features_artist_test.csv` | Person 3 | Test-split audio features merged to artist_id |
+| `results/ablation_results.csv` | Integrated | Final metrics table across baselines and hybrids |
 
 ---
 
@@ -50,6 +55,11 @@ All processed files live in `data/processed/`. Do **not** save outputs elsewhere
 | `artist_id` | int | HetRec `artist_id` |
 | `artist` | str | Artist name (for human readability) |
 | `rating` | float | 1.0–5.0 (log-normalized from play counts) |
+
+### `ratings_train_overlap.csv` / `ratings_test_overlap.csv`
+Same schema as the main train/test files, but restricted to artists appearing in
+`musicnet_audio_map.csv`. These files define the honest evaluation subset for
+audio-enabled experiments.
 
 ### `master_tracks.csv`
 All columns from `ratings_joined.csv` + all columns from `track_metadata.csv`.
@@ -74,6 +84,11 @@ All columns from `ratings_joined.csv` + all columns from `track_metadata.csv`.
 | `mfcc_1_mean` ... `mfcc_20_mean` | float | MFCC coefficient means |
 | `chroma_1_mean` ... `chroma_12_mean` | float | Chroma-bin means |
 | `contrast_1_mean` ... `contrast_7_mean` | float | Spectral contrast means |
+
+`audio_features_artist_test.csv` may be empty in environments where no mapped
+MusicNet items land in the rating test split. The file should still exist with
+headers so downstream validation and experiment code can handle the limitation
+explicitly.
 
 ---
 
@@ -112,6 +127,9 @@ python3 data/scripts/06_build_tag_features.py
 # 7. Build audio features and merged artist-level audio outputs
 python3 data/scripts/07_embed_tracks.py
 
+# 8. Run ablations and export final results
+python3 data/scripts/08_run_experiments.py
+
 # Or run all at once:
 bash data/scripts/run_pipeline.sh
 ```
@@ -133,5 +151,6 @@ Expected output:
 [OK] master_tracks.csv   — NNN rows, all columns present
 [OK] musicnet_audio_map.csv — no duplicate musicnet_id
 [OK] audio_features_artist_train.csv / test.csv — artist_id present
+[OK] results/ablation_results.csv — final metrics exported
 [OK] Train + Test sum matches ratings_joined
 ```

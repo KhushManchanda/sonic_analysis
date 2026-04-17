@@ -1,4 +1,289 @@
 artist_id,artist,musicnet_id,composer_raw,match_key,match_type
+1121,wolfgang amadeus mozart,1788,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1789,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1790,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1791,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1792,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1793,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1805,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1807,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1811,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1812,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1813,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1817,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1818,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1819,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1822,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1824,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1828,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1829,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1835,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1859,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1872,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1873,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1876,Mozart,wolfgang amadeus mozart,exact
+1121,wolfgang amadeus mozart,1893,Mozart,wolfgang amadeus mozart,exact
+1123,johann sebastian bach,2186,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2191,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2194,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2195,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2196,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2198,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2200,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2201,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2202,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2203,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2204,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2207,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2208,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2209,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2210,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2211,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2212,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2213,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2214,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2215,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2217,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2218,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2219,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2220,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2221,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2222,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2224,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2225,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2227,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2228,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2229,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2230,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2231,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2232,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2234,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2237,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2238,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2239,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2240,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2241,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2242,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2243,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2244,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2247,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2248,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2282,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2283,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2284,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2285,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2288,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2289,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2292,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2293,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2294,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2295,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2296,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2297,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2298,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2300,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2302,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2303,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2304,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2305,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2307,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2308,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2310,Bach,johann sebastian bach,exact
+1123,johann sebastian bach,2659,Bach,johann sebastian bach,exact
+1130,ludwig van beethoven,2313,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2314,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2315,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2318,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2319,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2320,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2322,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2325,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2330,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2334,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2335,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2336,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2341,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2342,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2343,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2345,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2346,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2348,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2350,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2357,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2358,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2359,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2364,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2365,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2366,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2368,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2371,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2372,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2373,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2374,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2376,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2377,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2379,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2381,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2382,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2383,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2384,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2388,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2389,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2390,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2391,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2392,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2393,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2397,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2398,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2403,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2404,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2405,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2406,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2410,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2411,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2415,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2416,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2417,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2420,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2422,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2423,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2424,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2431,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2432,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2433,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2436,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2441,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2442,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2443,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2444,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2451,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2462,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2463,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2466,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2471,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2472,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2473,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2476,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2477,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2478,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2480,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2481,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2482,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2483,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2486,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2487,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2488,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2490,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2491,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2492,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2494,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2497,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2501,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2502,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2504,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2505,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2506,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2507,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2509,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2510,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2512,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2514,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2516,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2521,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2522,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2523,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2527,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2528,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2529,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2530,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2531,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2532,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2533,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2537,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2538,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2540,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2542,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2550,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2555,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2556,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2557,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2560,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2562,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2564,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2566,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2567,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2568,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2570,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2571,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2572,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2573,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2575,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2576,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2581,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2582,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2586,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2588,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2590,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2591,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2593,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2594,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2595,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2596,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2603,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2607,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2608,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2611,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2614,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2618,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2619,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2620,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2621,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2622,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2626,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2627,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2628,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2629,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2632,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2633,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2677,Beethoven,ludwig van beethoven,exact
+1130,ludwig van beethoven,2678,Beethoven,ludwig van beethoven,exact
+1139,maurice ravel,2177,Ravel,maurice ravel,exact
+1139,maurice ravel,2178,Ravel,maurice ravel,exact
+1139,maurice ravel,2179,Ravel,maurice ravel,exact
+1139,maurice ravel,2180,Ravel,maurice ravel,exact
+9271,franz schubert,1727,Schubert,franz schubert,exact
+9271,franz schubert,1728,Schubert,franz schubert,exact
+9271,franz schubert,1729,Schubert,franz schubert,exact
+9271,franz schubert,1730,Schubert,franz schubert,exact
+9271,franz schubert,1733,Schubert,franz schubert,exact
+9271,franz schubert,1734,Schubert,franz schubert,exact
+9271,franz schubert,1735,Schubert,franz schubert,exact
+9271,franz schubert,1739,Schubert,franz schubert,exact
+9271,franz schubert,1742,Schubert,franz schubert,exact
+9271,franz schubert,1749,Schubert,franz schubert,exact
+9271,franz schubert,1750,Schubert,franz schubert,exact
+9271,franz schubert,1751,Schubert,franz schubert,exact
+9271,franz schubert,1752,Schubert,franz schubert,exact
+9271,franz schubert,1755,Schubert,franz schubert,exact
+9271,franz schubert,1756,Schubert,franz schubert,exact
+9271,franz schubert,1757,Schubert,franz schubert,exact
+9271,franz schubert,1758,Schubert,franz schubert,exact
+9271,franz schubert,1759,Schubert,franz schubert,exact
+9271,franz schubert,1760,Schubert,franz schubert,exact
+9271,franz schubert,1763,Schubert,franz schubert,exact
+9271,franz schubert,1764,Schubert,franz schubert,exact
+9271,franz schubert,1765,Schubert,franz schubert,exact
+9271,franz schubert,1766,Schubert,franz schubert,exact
+9271,franz schubert,1768,Schubert,franz schubert,exact
+9271,franz schubert,1771,Schubert,franz schubert,exact
+9271,franz schubert,1772,Schubert,franz schubert,exact
+9271,franz schubert,1773,Schubert,franz schubert,exact
+9271,franz schubert,1775,Schubert,franz schubert,exact
+9271,franz schubert,1776,Schubert,franz schubert,exact
+9271,franz schubert,1777,Schubert,franz schubert,exact
+15338,franz joseph haydn,2104,Haydn,franz joseph haydn,exact
+15338,franz joseph haydn,2105,Haydn,franz joseph haydn,exact
+15338,franz joseph haydn,2106,Haydn,franz joseph haydn,exact
 17769,brahms,2112,Brahms,brahms,exact
 17769,brahms,2113,Brahms,brahms,exact
 17769,brahms,2114,Brahms,brahms,exact

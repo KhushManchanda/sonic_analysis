@@ -10,6 +10,7 @@ import pandas as pd
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PROCESSED = ROOT / "data" / "processed"
+RESULTS = ROOT / "results"
 
 ERRORS = []
 PASSES = []
@@ -98,6 +99,19 @@ for name in ["audio_features_artist_train.csv", "audio_features_artist_test.csv"
     audio = load(name)
     if audio is not None:
         check(f"{name} has artist_id", "artist_id" in audio.columns)
+        check(f"{name} has recording_count", "recording_count" in audio.columns)
+
+results_path = RESULTS / "ablation_results.csv"
+if results_path.exists():
+    try:
+        results_df = pd.read_csv(results_path)
+        check("ablation_results has model column", "model" in results_df.columns)
+        check("ablation_results has rmse column", "rmse" in results_df.columns)
+        check("ablation_results has evaluation_scope column", "evaluation_scope" in results_df.columns)
+    except Exception as e:
+        ERRORS.append(f"[FAIL] results/ablation_results.csv could not be read: {e}")
+else:
+    ERRORS.append(f"[FAIL] ablation_results.csv not found at {results_path}")
 
 print()
 print("=" * 56)

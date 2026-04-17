@@ -1,7 +1,7 @@
-# 🎵 Sonic Analysis — Music Recommendation System
+# 🎵 Sonic Analysis — Hybrid Music Recommendation System
 
 > **CSE 575 — Statistical Machine Learning | Spring 2026**
-> Improving music recommendation accuracy by combining collaborative filtering with audio-derived features and Last.fm semantic tags.
+> Final integrated pipeline for artist-level recommendation using collaborative filtering, semantic tags, and audio-derived content features.
 
 ---
 
@@ -24,16 +24,23 @@
 
 ## 1. Project Overview
 
-Traditional music recommenders rely on user–item ratings alone. Two tracks can be similar even if they share no listeners — because they share sonic characteristics (tempo, timbre, energy) or semantic meaning (mood, genre, style tags). This failure is worst in **cold-start** settings where rating history is sparse.
+Traditional music recommenders rely on user–item ratings alone. Two artists can still be similar even if they do not share many listeners, because they may share sonic characteristics or semantic community tags. This failure is worst in sparse and near-cold settings.
 
-AudioMuse-AI builds a hybrid recommender that combines:
+This repository now implements a full end-to-end, **artist-level** hybrid recommender that combines:
 
 | Signal | Source | Responsible |
 |--------|--------|-------------|
 | **Ratings** (collaborative filtering) | HetRec 2011 Last.fm 2K | Person 1 ✅ |
 | **Semantic tags** (Last.fm community labels) | Last.fm API + HetRec local cache | Person 2 ✅|
 | **Audio features** (local sonic analysis) | MusicNet WAV + Librosa | Person 3 ✅ |
-| **Models + Evaluation** | scikit-learn, LightFM | Person 4 |
+| **Models + Evaluation** | NumPy + scikit-learn | Integrated |
+
+### Final repo reality
+
+- Canonical item key: `artist_id`
+- Legacy filenames such as `track_metadata.csv` and `master_tracks.csv` are preserved for compatibility
+- Audio is evaluated on an overlap subset only when mapped MusicNet coverage exists
+- In the checked-in environment, audio coverage is extremely small and test-overlap may be empty
 
 ---
 
@@ -193,59 +200,64 @@ sonic_analysis/
 git clone <repo-url>
 cd sonic_analysis
 
+# Create local virtualenv
+python3 -m venv .venv
+source .venv/bin/activate
+
 # Install Python dependencies
 pip install -r requirements.txt
 
-# Run the data pipeline
-bash data/scripts/run_pipeline.sh
+# Run the full pipeline without re-downloading existing raw data
+bash data/scripts/run_pipeline.sh --skip-download --workers=4
 ```
 
-The pipeline will download MusicNet (~11 GB) on first run. Subsequent runs skip files that are already present. Audio extraction supports parallel workers:
+If raw data is missing and you want a full download, run:
 
 ```bash
-bash data/scripts/run_pipeline.sh --workers 12
+bash data/scripts/run_pipeline.sh --workers=12
 ```
 
-After running, `data/processed/` will contain all output files.
+After running, `data/processed/` will contain integration-ready tables and `results/` will contain final evaluation outputs.
 
 ### Validate outputs
 ```bash
-python3 data/scripts/validate_outputs.py
-# Expected: All 23 checks passed. Ready to share!
+.venv/bin/python data/scripts/validate_outputs.py
 ```
 
 ---
 
-## 8. What's Already Done (Person 1 — Data Pipeline)
+## 8. Finished Pipeline Stages
 
-**Status: ✅ Complete as of April 9, 2026**
-
-Person 1 has delivered the full shared data foundation:
+The current finished project supports these stages:
 
 | Script | What it does | Output |
 |--------|-------------|--------|
 | `01_download.sh` | Downloads MusicNet + HetRec 2011 | `data/raw/` |
 | `02_clean_metadata.py` | Builds 17,632-artist catalog from HetRec | `track_metadata.csv` |
 | `03_join_ratings.py` | Joins play counts → 1–5 ratings | `ratings_joined.csv` |
-| `04_split.py` | 80/20 stratified per-user split | `ratings_train/test.csv` |
+| `04_split.py` | 80/20 stratified per-user split + audio-overlap subsets | `ratings_train/test.csv`, `ratings_*_overlap.csv` |
 | `05_export_master.py` | Flat join + dataset stats | `master_tracks.csv` |
-| `validate_outputs.py` | 23 automated sanity checks | Pass/fail report |
+| `06_build_tag_features.py` | Builds artist-level local Last.fm TF-IDF features | `tag_features.csv` |
+| `07_embed_tracks.py` | Produces/rebuilds artist-level audio tables from MusicNet embeds | `audio_features_artist_*.csv` |
+| `08_run_experiments.py` | Runs baselines, MF, hybrids, metrics, slices, summaries | `results/*` |
+| `validate_outputs.py` | Validates processed files and final metrics table | Pass/fail report |
 
 **Key design decisions:**
-- `track_id` = HetRec `artist_id` — stable integer, same across all files
-- Play counts are **log-normalized** to 1–5 scale (handles power-law distribution)
-- Split is **stratified by user** — no user appears only in test (prevents cold-start leakage)
-- Sparse users with < 2 ratings go entirely to train
+- `artist_id` is the canonical item key
+- Legacy `track_*` filenames are retained where already embedded in the repo
+- Play counts are log-normalized to a 1–5 explicit rating target
+- Split is stratified by user so no user exists only in test
+- Audio experiments are only trusted on the overlap subset and are marked unavailable when no test overlap exists
 
 ---
 
-## 9. Next Steps — Complete Roadmap
+## 9. Final Experiment Design
 
-> **Rule:** Every output file must have a `track_id` column (integer) to join with Person 1's data. See `README_schema.md` for exact column specs.
+> **Rule:** Final integrated tables should use `artist_id`. Raw MusicNet embed intermediates may use `musicnet_id` and must join through `musicnet_audio_map.csv`.
 
 ---
 
-### ✅ Person 3 — Audio Feature Extraction
+### Audio pipeline
 
 **Status: Complete as of April 12, 2026**
 
@@ -290,7 +302,7 @@ audio = audio.merge(mapping, on="musicnet_id", how="left")
 
 ---
 
-### 🔲 Person 2 — Last.fm Tag Pipeline
+### Tag pipeline
 
 **Goal:** Produce `data/processed/tag_features.csv` — one row per artist with tag-based features.
 
@@ -327,62 +339,28 @@ tfidf_*   (float) — one column per tag in vocabulary (sparse is fine)
 
 ---
 
-### 🔲 Person 4 — Modeling & Evaluation
+### Modeling & evaluation
 
 **Goal:** Train baselines → matrix factorization → hybrid model. Produce an evaluation table.
 
-**Step 1 — Load data (start immediately, don't wait for tags/audio):**
+The current experiment runner produces:
 ```python
 import pandas as pd
 train = pd.read_csv("data/processed/ratings_train.csv")
 test  = pd.read_csv("data/processed/ratings_test.csv")
-# Columns: user_id, track_id, artist, rating
+# Columns: user_id, artist_id, artist, rating
 ```
 
-**Step 2 — Baselines (implement first, today):**
-
-| Baseline | Formula | Expected RMSE |
-|----------|---------|---------------|
-| Global mean | `ŷ = mean(train.rating)` | ~0.49 |
-| User mean | `ŷ = mean(user ratings)` | < global mean |
-| Item mean | `ŷ = mean(item ratings)` | < global mean |
-| kNN (user-based) | cosine similarity | TBD |
-
-**Step 3 — Matrix Factorization:**
-```python
-# Option A: surprise library
-from surprise import SVD, Dataset, Reader
-from surprise.model_selection import cross_validate
-
-# Option B: LightFM (also supports hybrid)
-from lightfm import LightFM
-```
-
-**Step 4 — Hybrid (audio features are ready; waiting on tag_features.csv from Person 2):**
-```python
-import pandas as pd
-
-audio_train = pd.read_csv("data/embeds/audio_features_train.csv")
-audio_test  = pd.read_csv("data/embeds/audio_features_test.csv")
-mapping     = pd.read_csv("data/processed/musicnet_audio_map.csv")
-
-# Join musicnet_id -> track_id, then join with ratings on track_id
-audio_train = audio_train.merge(mapping, on="musicnet_id", how="left")
-
-tags  = pd.read_csv("data/processed/tag_features.csv")   # when Person 2 is done
-# Build item feature matrix, pass to LightFM
-```
-
-**Step 5 — Evaluation metrics:**
-```python
-from sklearn.metrics import mean_squared_error, mean_absolute_error
-import numpy as np
-
-rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-mae  = mean_absolute_error(y_true, y_pred)
-# For top-N: binarize ratings >= 3.5 as "positive"
-# Then compute Precision@K, Recall@K, NDCG@K
-```
+| Model family | Implemented |
+|-------------|-------------|
+| Global mean | ✅ |
+| User mean | ✅ |
+| Item mean | ✅ |
+| User-based kNN CF | ✅ |
+| Matrix factorization | ✅ |
+| MF + tags | ✅ |
+| MF + audio | ✅ overlap-aware |
+| MF + tags + audio | ✅ overlap-aware |
 
 **Required ablation table:**
 
@@ -420,34 +398,34 @@ mae  = mean_absolute_error(y_true, y_pred)
 
 ---
 
-## 10. Evaluation Plan
+## 10. Evaluation Protocol
 
 ### Rating prediction (quantitative)
 - **RMSE** and **MAE** on `ratings_test.csv`
 - Lower is better
 
 ### Top-N recommendation (ranking quality)
-- Binarize: rating ≥ 3.5 = "liked"
+- Binarize: rating ≥ 4.0 = "liked"
 - Metrics: **Precision@K**, **Recall@K**, **NDCG@K** (K = 10)
 
-### Cold-start analysis
-- Segment test users by training rating count:
-  - **Cold**: ≤ 5 ratings in train
-  - **Near-cold**: 6–20 ratings
-  - **Normal**: > 20 ratings
-- Compare model performance across these segments to measure whether tags/audio help sparse users
+### Sparse / low-support analysis
+- Sparse user slice: users with ≤ 10 training interactions
+- Low-support item slice: artists with ≤ 2 training interactions
+- Saved to `results/slice_metrics.csv`
 
 ---
 
-## 11. Minimum Deliverable
+## 11. Final Outputs
 
-If time runs short, the project is successful if it delivers:
-
-- [x] Ratings-only baseline (global/user/item mean)
-- [x] Audio feature pipeline (+ audio)
-- [ ] One additional hybrid enhancement (+ tags)
-- [ ] One evaluation table (RMSE + MAE at minimum)
-- [ ] One demo: example top-10 recommendations for a sample user
+- `data/processed/tag_features.csv`
+- `data/processed/audio_features_artist_train.csv`
+- `data/processed/audio_features_artist_test.csv`
+- `results/ablation_results.csv`
+- `results/ablation_results.md`
+- `results/slice_metrics.csv`
+- `results/qualitative_examples.csv`
+- `results/qualitative_examples.md`
+- `docs/implementation_status.md`
 
 ---
 
@@ -455,18 +433,21 @@ If time runs short, the project is successful if it delivers:
 
 See [`README_schema.md`](README_schema.md) for the complete column-level specification.
 
-**Golden rule: every file in `data/processed/` must have a `track_id` (int) column.**
+**Golden rule: final integrated recommender tables use `artist_id` as the canonical item key.**
 
-| File | track_id maps to | Owner |
-|------|-----------------|-------|
-| `track_metadata.csv` | HetRec `artistID` | Person 1 ✅ |
-| `ratings_train.csv` | HetRec `artistID` | Person 1 ✅ |
-| `ratings_test.csv` | HetRec `artistID` | Person 1 ✅ |
-| `master_tracks.csv` | HetRec `artistID` | Person 1 ✅ |
-| `tag_features.csv` | HetRec `artistID` | Person 2 🔲 |
-| `audio_features_train.csv` | MusicNet `musicnet_id` (join via `musicnet_audio_map.csv`) | Person 3 ✅ |
-| `audio_features_test.csv` | MusicNet `musicnet_id` (join via `musicnet_audio_map.csv`) | Person 3 ✅ |
+| File | Canonical join key | Notes |
+|------|--------------------|-------|
+| `track_metadata.csv` | `artist_id` | Legacy filename, artist-level rows |
+| `ratings_train.csv` | `artist_id` | Main training ratings |
+| `ratings_test.csv` | `artist_id` | Main test ratings |
+| `ratings_train_overlap.csv` | `artist_id` | Audio-overlap train subset |
+| `ratings_test_overlap.csv` | `artist_id` | Audio-overlap test subset |
+| `master_tracks.csv` | `artist_id` | Legacy filename, artist-level |
+| `tag_features.csv` | `artist_id` | Local HetRec tags + optional Last.fm fallback |
+| `audio_features_artist_train.csv` | `artist_id` | Aggregated from MusicNet embeddings |
+| `audio_features_artist_test.csv` | `artist_id` | May be empty if no overlap test coverage |
+| `results/ablation_results.csv` | n/a | Final experiment summary table |
 
 ---
 
-*Last updated: April 12, 2026 by Person 3 (Diggy)*
+*Last updated: April 16, 2026 after full pipeline integration.*

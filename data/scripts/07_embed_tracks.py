@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import logging
 import threading
@@ -115,6 +117,13 @@ def process_split(split_name: str, audio_dir: Path, track_ids: list[str], worker
 
 
 def build_artist_level_output(split_name: str, raw_output_path: Path) -> None:
+    out_path = PROCESSED_DIR / f"audio_features_artist_{split_name}.csv"
+
+    if not raw_output_path.exists():
+        log.warning(f"[{split_name}] Raw audio feature file not found: {raw_output_path}")
+        pd.DataFrame(columns=["artist_id", "artist", "musicnet_ids", "recording_count"]).to_csv(out_path, index=False)
+        return
+
     if not MAP_PATH.exists():
         log.warning("musicnet_audio_map.csv not found — skipping artist-level audio output")
         return
@@ -132,6 +141,10 @@ def build_artist_level_output(split_name: str, raw_output_path: Path) -> None:
     merged = raw.merge(mapping, on="musicnet_id", how="inner")
     if merged.empty:
         log.warning(f"[{split_name}] No mapped audio rows found after merge")
+        empty_cols = ["artist_id", "artist", "musicnet_ids", "recording_count"] + [
+            col for col in raw.columns if col != "musicnet_id"
+        ]
+        pd.DataFrame(columns=empty_cols).to_csv(out_path, index=False)
         return
 
     numeric_cols = [
@@ -153,21 +166,55 @@ def build_artist_level_output(split_name: str, raw_output_path: Path) -> None:
     rest_cols = [c for c in artist_level.columns if c not in lead_cols]
     artist_level = artist_level[lead_cols + rest_cols].sort_values("artist_id")
 
-    out_path = PROCESSED_DIR / f"audio_features_artist_{split_name}.csv"
     artist_level.to_csv(out_path, index=False)
     log.info(f"[{split_name}] Artist-level output: {out_path}")
+
+
+def maybe_build_from_existing_outputs() -> bool:
+    """
+    Rebuild processed artist-level audio tables from existing embed CSVs.
+
+    This keeps the project runnable in environments where raw MusicNet WAV
+    directories are not available locally, but previously extracted features are.
+    """
+    found_any = False
+    for split_name in SPLITS:
+        raw_output_path = OUTPUT_DIR / f"audio_features_{split_name}.csv"
+        if raw_output_path.exists():
+            build_artist_level_output(split_name, raw_output_path)
+            found_any = True
+    return found_any
 
 
 def main():
     parser = argparse.ArgumentParser(description="Extract audio features from MusicNet WAV files.")
     parser.add_argument("--workers", type=int, default=4, help="Number of parallel worker processes (default: 4)")
+    parser.add_argument(
+        "--rebuild-only",
+        action="store_true",
+        help="Skip raw WAV extraction and only rebuild artist-level processed audio outputs from existing embed CSVs.",
+    )
     args = parser.parse_args()
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+    if args.rebuild_only:
+        rebuilt = maybe_build_from_existing_outputs()
+        if not rebuilt:
+            raise SystemExit("No existing embed CSVs found to rebuild from.")
+        return
+
+    if not METADATA_PATH.exists():
+        if maybe_build_from_existing_outputs():
+            log.info("MusicNet metadata missing, but artist-level outputs were rebuilt from existing embed CSVs.")
+            return
+        raise SystemExit(f"Missing required metadata file: {METADATA_PATH}")
 
     metadata = pd.read_csv(METADATA_PATH, dtype={"id": str})
     all_ids = metadata["id"].tolist()
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    processed_any_split = False
 
     for split_name, audio_dir in SPLITS.items():
         if not audio_dir.exists():
@@ -180,6 +227,14 @@ def main():
         log.info(f"[{split_name}] {len(split_ids)} tracks found in {audio_dir}")
         raw_output_path = process_split(split_name, audio_dir, split_ids, args.workers)
         build_artist_level_output(split_name, raw_output_path)
+        processed_any_split = True
+
+    if not processed_any_split:
+        rebuilt = maybe_build_from_existing_outputs()
+        if rebuilt:
+            log.info("Raw MusicNet split directories unavailable; rebuilt processed artist-level outputs from existing embed CSVs.")
+        else:
+            log.warning("No raw MusicNet directories or existing embed CSVs were available. No processed audio outputs were generated.")
 
 
 if __name__ == "__main__":

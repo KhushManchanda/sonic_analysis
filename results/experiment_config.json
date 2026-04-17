@@ -1,0 +1,8 @@
+{
+  "positive_threshold": 4.0,
+  "k": 10,
+  "audio_train_overlap_rows": 81,
+  "audio_test_overlap_rows": 18,
+  "audio_train_overlap_artists": 7,
+  "audio_test_overlap_artists": 4
+}

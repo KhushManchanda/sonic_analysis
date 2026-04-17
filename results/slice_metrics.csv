@@ -1,0 +1,17 @@
+model,evaluation_scope,slice,rmse,mae,n
+Global mean,full_catalog,sparse_users_train_le_10,1.1816266465713317,1.028960733762299,28
+Global mean,full_catalog,low_interaction_items_train_le_2,0.48689322821040404,0.36662235539006327,2044
+User mean,full_catalog,sparse_users_train_le_10,0.4363903751648252,0.31757148809523805,28
+User mean,full_catalog,low_interaction_items_train_le_2,0.23068520961388955,0.17795116326936955,2044
+Item mean,full_catalog,sparse_users_train_le_10,1.2452194288555762,1.0843424068785315,28
+Item mean,full_catalog,low_interaction_items_train_le_2,0.624369106964701,0.4822409001956947,2044
+kNN CF,full_catalog,sparse_users_train_le_10,0.4221603688617625,0.3124747330981152,28
+kNN CF,full_catalog,low_interaction_items_train_le_2,0.2767461802030615,0.2058333748986454,2044
+MF (Ratings),full_catalog,sparse_users_train_le_10,0.700781699415519,0.6050696876995801,28
+MF (Ratings),full_catalog,low_interaction_items_train_le_2,0.2304647197535483,0.17256131435490255,2044
+MF + Tags,full_catalog,sparse_users_train_le_10,0.71586616711483,0.6217401458434051,28
+MF + Tags,full_catalog,low_interaction_items_train_le_2,0.23083712736848067,0.17364088614183643,2044
+MF + Audio,audio_overlap,sparse_users_train_le_10,0.44233424905760055,0.32621931222950534,10
+MF + Audio,audio_overlap,low_interaction_items_train_le_2,0.3543052481534763,0.3543052481534763,1
+MF + Tags + Audio,audio_overlap,sparse_users_train_le_10,0.4423086287579748,0.32620307019155026,10
+MF + Tags + Audio,audio_overlap,low_interaction_items_train_le_2,0.35432942265976886,0.35432942265976886,1

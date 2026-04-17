@@ -38,14 +38,15 @@ MANUAL_COMPOSER_ALIASES: dict[str, list[str]] = {
     "franz schubert": ["schubert"],
     "frederic chopin": ["chopin"],
     "wolfgang amadeus mozart": ["mozart"],
-    "joseph haydn": ["haydn"],
+    "franz joseph haydn": ["haydn", "joseph haydn"],
     "claude debussy": ["debussy"],
     "antonin dvorak": ["dvorak"],
     "felix mendelssohn": ["mendelssohn"],
     "robert schumann": ["schumann"],
     "sergei rachmaninoff": ["rachmaninoff", "rachmaninov"],
+    "maurice ravel": ["ravel"],
+    "gabriel faure": ["faure"],
 }
-
 
 def normalize_text(value: str) -> str:
     text = str(value).strip().lower()
@@ -62,10 +63,24 @@ def normalize_composer(name: str) -> str:
     return name
 
 
+# Reverse alias lookup allows MusicNet short composer names like "Bach" or
+# "Beethoven" to resolve to the canonical HetRec artist spelling.
+REVERSE_ALIAS_TO_CANONICAL: dict[str, str] = {}
+for canonical_name, aliases in MANUAL_COMPOSER_ALIASES.items():
+    REVERSE_ALIAS_TO_CANONICAL[normalize_text(canonical_name)] = normalize_text(canonical_name)
+    for alias in aliases:
+        REVERSE_ALIAS_TO_CANONICAL[normalize_text(alias)] = normalize_text(canonical_name)
+
+
 def candidate_match_keys(composer_norm: str) -> list[tuple[str, str]]:
-    keys = [(composer_norm, "exact")]
-    for alias in MANUAL_COMPOSER_ALIASES.get(composer_norm, []):
-        keys.append((normalize_text(alias), "alias"))
+    canonical = REVERSE_ALIAS_TO_CANONICAL.get(composer_norm, composer_norm)
+    keys = [(canonical, "exact")]
+    if canonical != composer_norm:
+        keys.append((composer_norm, "reverse_alias"))
+    for alias in MANUAL_COMPOSER_ALIASES.get(canonical, []):
+        alias_norm = normalize_text(alias)
+        if alias_norm not in {key for key, _ in keys}:
+            keys.append((alias_norm, "alias"))
     return keys
 
 

@@ -1,1 +1,19 @@
 user_id,artist_id,artist,rating
+33,1121,wolfgang amadeus mozart,2.9717
+61,1123,johann sebastian bach,2.6547
+103,1121,wolfgang amadeus mozart,2.1772
+366,1121,wolfgang amadeus mozart,2.6456
+492,1121,wolfgang amadeus mozart,2.7752
+546,1123,johann sebastian bach,3.0362
+666,1123,johann sebastian bach,2.9156
+806,1130,ludwig van beethoven,2.8147
+1065,1123,johann sebastian bach,1.3638
+1286,1130,ludwig van beethoven,2.623
+1329,1130,ludwig van beethoven,2.8229
+1345,1123,johann sebastian bach,2.5811
+1500,1121,wolfgang amadeus mozart,2.4068
+1626,1130,ludwig van beethoven,2.1911
+1723,15338,franz joseph haydn,2.2376
+1798,1121,wolfgang amadeus mozart,1.8967
+1939,1130,ludwig van beethoven,3.6573
+1977,1121,wolfgang amadeus mozart,2.5768
